@@ -31,6 +31,23 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   (i.e. unchanged from before) - a per-browser preference stored in
   localStorage, applied before first paint to avoid a flash of the wrong
   theme.
+- Extended admin statistics on the Stats page, in three sections:
+  - **Security/audit**: blocked-login and expired-share-link-access counts
+    (24h), and a recent-changes log covering settings edits, user
+    creation/deletion, quota changes and admin password resets - previously
+    unaudited.
+  - **Usage behaviour**: local vs. OAuth login trend (14 days), a rough
+    current active-session count, and a desktop/mobile split based on
+    login user-agents.
+  - **Capacity/growth**: a daily storage-usage snapshot (builds a growth
+    history across admin visits), a file-type breakdown by broad category,
+    and total bandwidth served via share-link downloads.
+  
+  The Stats page was restructured into tabs (Files/Storage/Security/Usage)
+  to keep it readable, and given more visual structure: the file-type
+  breakdown is now a pie chart, the desktop/mobile split a two-color bar,
+  and key numbers (storage total, bandwidth, active sessions, blocked
+  logins, expired share access) are colour-coded.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

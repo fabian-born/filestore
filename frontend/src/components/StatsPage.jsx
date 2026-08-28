@@ -18,7 +18,7 @@ export default function StatsPage({ user, onBack, onLogout }) {
         </div>
       </header>
 
-      <StatsPanel showStorage={Boolean(user?.isAdmin)} />
+      <StatsPanel isAdmin={Boolean(user?.isAdmin)} />
     </div>
   );
 }

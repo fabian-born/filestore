@@ -162,6 +162,11 @@ export default {
       share_email: 'Share emailed to: {detail}',
       share_email_failed: 'Share email failed for: {detail}',
       owner_change: 'Owner changed: {key} → {detail}',
+      settings_change: 'Settings changed: {detail}',
+      user_created: 'User created: {detail}',
+      user_deleted: 'User deleted: {detail}',
+      quota_change: 'Quota changed: {detail}',
+      password_reset: 'Password reset for: {detail}',
     },
   },
   fileStats: {
@@ -171,6 +176,12 @@ export default {
   stats: {
     title: 'Statistics',
     empty: 'No views or downloads yet.',
+    tabs: {
+      files: 'Files',
+      storage: 'Storage',
+      security: 'Security',
+      usage: 'Usage',
+    },
     columns: {
       file: 'File',
       views: 'Views',
@@ -181,6 +192,42 @@ export default {
     storage: {
       title: 'Storage usage',
       used: 'Used',
+    },
+    security: {
+      title: 'Security',
+      blockedLogins: 'Blocked logins (24h)',
+      expiredAccess: 'Expired-link access attempts (24h)',
+      recentChanges: 'Recent admin changes',
+      empty: 'No changes yet.',
+    },
+    usage: {
+      title: 'Usage behaviour',
+      loginTrend: 'Logins (last 14 days)',
+      date: 'Date',
+      local: 'Local',
+      oauth: 'SSO',
+      activeSessions: 'Active sessions right now',
+      unknown: 'unknown',
+      deviceSplit: 'Device type (total logins)',
+      desktop: 'Desktop',
+      mobile: 'Mobile',
+      empty: 'No logins yet.',
+    },
+    capacity: {
+      title: 'Capacity & growth',
+      total: 'Total storage',
+      growth: 'Storage growth',
+      fileTypes: 'File type breakdown',
+      bandwidth: 'Bandwidth via share links',
+      categories: {
+        image: 'Images',
+        video: 'Videos',
+        audio: 'Audio',
+        document: 'Documents',
+        other: 'Other',
+        unknown: 'Unknown',
+      },
+      empty: 'No data yet.',
     },
   },
   wizard: {

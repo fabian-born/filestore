@@ -162,6 +162,11 @@ export default {
       share_email: 'Freigabe per E-Mail gesendet an: {detail}',
       share_email_failed: 'Freigabe per E-Mail fehlgeschlagen an: {detail}',
       owner_change: 'Besitzer geändert: {key} → {detail}',
+      settings_change: 'Einstellungen geändert: {detail}',
+      user_created: 'Benutzer angelegt: {detail}',
+      user_deleted: 'Benutzer gelöscht: {detail}',
+      quota_change: 'Kontingent geändert: {detail}',
+      password_reset: 'Passwort zurückgesetzt für: {detail}',
     },
   },
   fileStats: {
@@ -171,6 +176,12 @@ export default {
   stats: {
     title: 'Statistik',
     empty: 'Noch keine Aufrufe oder Downloads vorhanden.',
+    tabs: {
+      files: 'Dateien',
+      storage: 'Speicher',
+      security: 'Sicherheit',
+      usage: 'Nutzung',
+    },
     columns: {
       file: 'Datei',
       views: 'Aufrufe',
@@ -181,6 +192,42 @@ export default {
     storage: {
       title: 'Speicherverbrauch',
       used: 'Verbrauch',
+    },
+    security: {
+      title: 'Sicherheit',
+      blockedLogins: 'Blockierte Logins (24h)',
+      expiredAccess: 'Zugriffe auf abgelaufene Links (24h)',
+      recentChanges: 'Letzte Admin-Änderungen',
+      empty: 'Keine Änderungen vorhanden.',
+    },
+    usage: {
+      title: 'Nutzungsverhalten',
+      loginTrend: 'Logins (letzte 14 Tage)',
+      date: 'Datum',
+      local: 'Lokal',
+      oauth: 'SSO',
+      activeSessions: 'Aktive Sitzungen gerade jetzt',
+      unknown: 'unbekannt',
+      deviceSplit: 'Gerätetyp (Logins gesamt)',
+      desktop: 'Desktop',
+      mobile: 'Mobil',
+      empty: 'Noch keine Logins vorhanden.',
+    },
+    capacity: {
+      title: 'Kapazität & Wachstum',
+      total: 'Gesamtspeicher',
+      growth: 'Speicherwachstum',
+      fileTypes: 'Dateityp-Verteilung',
+      bandwidth: 'Bandbreite über Freigabe-Links',
+      categories: {
+        image: 'Bilder',
+        video: 'Videos',
+        audio: 'Audio',
+        document: 'Dokumente',
+        other: 'Sonstige',
+        unknown: 'Unbekannt',
+      },
+      empty: 'Noch keine Daten vorhanden.',
     },
   },
   wizard: {

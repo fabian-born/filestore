@@ -267,6 +267,18 @@ export function getStorageOverview() {
   return request('/admin/storage');
 }
 
+export function getSecurityStats() {
+  return request('/admin/stats/security');
+}
+
+export function getUsageStats() {
+  return request('/admin/stats/usage');
+}
+
+export function getCapacityStats() {
+  return request('/admin/stats/capacity');
+}
+
 export function updateUserQuota(id, quotaGb) {
   return request(`/users/${id}/quota`, {
     method: 'PUT',

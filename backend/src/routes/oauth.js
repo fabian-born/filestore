@@ -154,7 +154,13 @@ router.get('/oauth/callback', async (req, res) => {
   req.session.username = user.username;
   req.session.isAdmin = Boolean(user.isAdmin ?? user.is_admin);
   req.session.authMethod = 'oauth';
-  logActivity({ userId: user.id, username: user.username, action: 'login', detail: 'oauth' });
+  logActivity({
+    userId: user.id,
+    username: user.username,
+    action: 'login',
+    detail: 'oauth',
+    userAgent: req.headers['user-agent'],
+  });
 
   res.redirect('/');
 });

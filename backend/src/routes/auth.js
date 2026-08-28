@@ -15,7 +15,12 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
-  handler: (req, res) => res.status(429).json({ error: 'TOO_MANY_LOGIN_ATTEMPTS' }),
+  handler: (req, res) => {
+    // Not necessarily a real username (the attempt could be anything), but
+    // still useful context for the security stats - logged as-is, unverified.
+    logActivity({ action: 'login_blocked', detail: req.body?.username, userAgent: req.headers['user-agent'] });
+    res.status(429).json({ error: 'TOO_MANY_LOGIN_ATTEMPTS' });
+  },
 });
 
 router.post('/login', loginLimiter, (req, res) => {
@@ -31,7 +36,13 @@ router.post('/login', loginLimiter, (req, res) => {
   req.session.username = user.username;
   req.session.isAdmin = Boolean(user.is_admin);
   req.session.authMethod = 'local';
-  logActivity({ userId: user.id, username: user.username, action: 'login', detail: 'local' });
+  logActivity({
+    userId: user.id,
+    username: user.username,
+    action: 'login',
+    detail: 'local',
+    userAgent: req.headers['user-agent'],
+  });
   res.json({ ok: true });
 });
 

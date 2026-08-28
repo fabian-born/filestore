@@ -9,8 +9,24 @@ import { createJob, getJob, scheduleCleanup } from '../moveJobs.js';
 import { listAllKeys, listAllKeysWithSize, statExists } from '../objectOps.js';
 import { renameFileOwner, setFileOwner, getFileOwners } from '../fileOwners.js';
 import { findById, listUsers } from '../users.js';
-import { addUsage, getUsage, effectiveQuotaBytes } from '../quota.js';
-import { logActivity } from '../activity.js';
+import {
+  addUsage,
+  getUsage,
+  effectiveQuotaBytes,
+  snapshotTodayStorage,
+  storageGrowth,
+  fileTypeBreakdown,
+  totalUsageAcrossUsers,
+} from '../quota.js';
+import {
+  logActivity,
+  countBlockedLogins24h,
+  listAdminAudit,
+  countExpiredShareAccess24h,
+  loginTrendByDay,
+  loginDeviceSplit,
+  shareBandwidthTotal,
+} from '../activity.js';
 
 const router = Router();
 
@@ -130,10 +146,13 @@ router.put('/admin/owner', requireAdmin, async (req, res) => {
         const existing = getFileOwners(entries.map((e) => e.key));
         const deltas = new Map();
         for (const { key: entryKey, size } of entries) {
-          const prevOwnerId = existing.get(entryKey)?.ownerId;
-          if (prevOwnerId) deltas.set(prevOwnerId, (deltas.get(prevOwnerId) || 0) - size);
+          const prev = existing.get(entryKey);
+          if (prev?.ownerId) deltas.set(prev.ownerId, (deltas.get(prev.ownerId) || 0) - size);
           deltas.set(newOwner.id, (deltas.get(newOwner.id) || 0) + size);
-          setFileOwner(entryKey, newOwner.id, newOwner.username, size);
+          // No per-object metadata in a bucket listing - carry over whatever
+          // content-type was already recorded rather than a statObject call
+          // per file, which wouldn't scale to a large folder.
+          setFileOwner(entryKey, newOwner.id, newOwner.username, size, prev?.contentType);
         }
         deltas.forEach((delta, id) => addUsage(id, delta));
       }
@@ -151,9 +170,9 @@ router.put('/admin/owner', requireAdmin, async (req, res) => {
     const stat = await client.statObject(bucket, key).catch(() => null);
     if (!stat) return res.status(404).json({ error: 'FILE_NOT_FOUND' });
 
-    const prevOwnerId = getFileOwners([key]).get(key)?.ownerId;
-    if (prevOwnerId) addUsage(prevOwnerId, -stat.size);
-    setFileOwner(key, newOwner.id, newOwner.username, stat.size);
+    const prev = getFileOwners([key]).get(key);
+    if (prev?.ownerId) addUsage(prev.ownerId, -stat.size);
+    setFileOwner(key, newOwner.id, newOwner.username, stat.size, stat.metaData?.['content-type'] || prev?.contentType);
     addUsage(newOwner.id, stat.size);
 
     logActivity({
@@ -182,6 +201,49 @@ router.get('/admin/storage', requireAdmin, (req, res) => {
     quotaBytes: effectiveQuotaBytes(u, settings),
   }));
   res.json({ users: overview });
+});
+
+// Security/audit: blocked logins, expired-link attempts, and recent admin
+// configuration changes (settings, user management) - the audit-trail gap
+// plain file activity doesn't cover.
+router.get('/admin/stats/security', requireAdmin, (req, res) => {
+  res.json({
+    blockedLogins24h: countBlockedLogins24h(),
+    expiredShareAccess24h: countExpiredShareAccess24h(),
+    recentAdminActions: listAdminAudit(20),
+  });
+});
+
+// Usage behaviour: login trend (local vs. OAuth), roughly how many sessions
+// are currently active, and a desktop/mobile split.
+router.get('/admin/stats/usage', requireAdmin, (req, res) => {
+  const respond = (activeSessions) => {
+    res.json({
+      loginTrend: loginTrendByDay(14),
+      activeSessions,
+      deviceSplit: loginDeviceSplit(),
+    });
+  };
+
+  if (typeof req.sessionStore?.length === 'function') {
+    req.sessionStore.length((err, count) => respond(err ? null : count));
+  } else {
+    respond(null);
+  }
+});
+
+// Capacity/growth: storage trend (a snapshot is taken/refreshed for today on
+// every call, so this gradually builds history across admin visits rather
+// than needing a cron job inside the app), file-type breakdown, and total
+// bandwidth served via share downloads.
+router.get('/admin/stats/capacity', requireAdmin, (req, res) => {
+  snapshotTodayStorage();
+  res.json({
+    storageGrowth: storageGrowth(30),
+    totalBytes: totalUsageAcrossUsers(),
+    fileTypes: fileTypeBreakdown(),
+    bandwidthBytes: shareBandwidthTotal(),
+  });
 });
 
 export default router;

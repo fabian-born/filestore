@@ -581,13 +581,118 @@ tr:last-child td {
   overflow-x: auto;
 }
 
-.storage-overview {
+.storage-overview,
+.stats-section {
   margin-bottom: 2rem;
 }
 
-.storage-overview h3 {
+.storage-overview h3,
+.stats-section h3 {
   font-size: 1rem;
   margin: 0 0 0.75rem;
+}
+
+.stats-section h4 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 1.25rem 0 0.6rem;
+}
+
+.stats-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stats-summary-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.stats-summary-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.stats-value-teal {
+  color: #1e7a86;
+}
+
+.stats-value-indigo {
+  color: #4f46e5;
+}
+
+.stats-value-danger {
+  color: var(--danger);
+}
+
+.stats-value-warn {
+  color: var(--warn);
+}
+
+.pie-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.pie-chart {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pie-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pie-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.pie-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.pie-legend-label {
+  min-width: 80px;
+  color: var(--text);
+}
+
+.pie-legend-value {
+  color: var(--text-muted);
+}
+
+.split-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.split-bar-segment {
+  height: 100%;
 }
 
 .users-table {
@@ -1112,13 +1217,16 @@ tr:last-child td {
     align-items: center;
   }
 
-  /* Same idea for the stats table: file/views/downloads is the data the
-     page exists to show, so total and last-activity (derivable/secondary)
-     are what gives way on a narrow screen. */
-  .stats-panel table th:last-child,
-  .stats-panel table td:last-child,
-  .stats-panel table th:nth-last-child(2),
-  .stats-panel table td:nth-last-child(2) {
+  /* Same idea for the file-stats table specifically: file/views/downloads
+     is the data the page exists to show, so total and last-activity
+     (derivable/secondary) are what gives way on a narrow screen. Scoped to
+     this one table (not every table in .stats-panel) since the admin
+     security/usage/capacity tables have as few as two columns - the same
+     "hide the last two" rule would wipe them out entirely. */
+  .file-stats-table th:last-child,
+  .file-stats-table td:last-child,
+  .file-stats-table th:nth-last-child(2),
+  .file-stats-table td:nth-last-child(2) {
     display: none;
   }
 

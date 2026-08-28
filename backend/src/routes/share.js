@@ -282,6 +282,7 @@ router.get('/share/:token', async (req, res) => {
     .get(req.params.token);
   if (!row) return res.status(404).send(renderMessagePage(lang, downloadMessage(req, 'linkNotFound')));
   if (row.expires_at && new Date(row.expires_at) < new Date()) {
+    logActivity({ action: 'share_expired_access', objectKey: row.object_key, detail: req.params.token });
     db.prepare('DELETE FROM shares WHERE token = ?').run(req.params.token);
     return res.status(410).send(renderMessagePage(lang, downloadMessage(req, 'linkExpired')));
   }
@@ -323,6 +324,7 @@ router.get('/share/:token/download', async (req, res) => {
     .get(req.params.token);
   if (!row) return res.status(404).send(downloadMessage(req, 'linkNotFound'));
   if (row.expires_at && new Date(row.expires_at) < new Date()) {
+    logActivity({ action: 'share_expired_access', objectKey: row.object_key, detail: req.params.token });
     db.prepare('DELETE FROM shares WHERE token = ?').run(req.params.token);
     return res.status(410).send(downloadMessage(req, 'linkExpired'));
   }
@@ -348,7 +350,7 @@ router.get('/share/:token/download', async (req, res) => {
     // playback (e.g. video scrubbing), not a new download - only the initial
     // full/attachment request counts.
     if (range.type === 'none') {
-      logActivity({ action: 'download', objectKey: row.object_key, detail: req.params.token });
+      logActivity({ action: 'download', objectKey: row.object_key, detail: req.params.token, bytes: stat.size });
     }
 
     if (range.type === 'range') {

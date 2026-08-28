@@ -3,6 +3,50 @@ import * as api from '../api.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 import { formatBytes } from '../format.js';
 
+// A fixed color per broad file-type category, reused between the pie chart
+// and its legend. "document" reuses the app's own teal accent.
+const CATEGORY_COLORS = {
+  image: '#4f46e5',
+  video: '#ec4899',
+  audio: '#f59e0b',
+  document: '#1e7a86',
+  other: '#64748b',
+  unknown: '#94a3b8',
+};
+
+function FileTypePieChart({ fileTypes, t }) {
+  const total = fileTypes.reduce((sum, f) => sum + f.bytes, 0);
+  let cumulative = 0;
+  const stops = fileTypes.map((f) => {
+    const start = total ? (cumulative / total) * 100 : 0;
+    cumulative += f.bytes;
+    const end = total ? (cumulative / total) * 100 : 0;
+    const color = CATEGORY_COLORS[f.category] || CATEGORY_COLORS.unknown;
+    return `${color} ${start}% ${end}%`;
+  });
+  const gradient = total > 0 ? `conic-gradient(${stops.join(', ')})` : 'var(--border)';
+
+  return (
+    <div className="pie-chart-row">
+      <div className="pie-chart" style={{ background: gradient }} />
+      <ul className="pie-legend">
+        {fileTypes.map((f) => (
+          <li key={f.category}>
+            <span
+              className="pie-swatch"
+              style={{ background: CATEGORY_COLORS[f.category] || CATEGORY_COLORS.unknown }}
+            />
+            <span className="pie-legend-label">{t(`stats.capacity.categories.${f.category}`)}</span>
+            <span className="pie-legend-value">
+              {formatBytes(f.bytes)} ({total ? Math.round((f.bytes / total) * 100) : 0}%)
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function CapacityStatsPanel() {
   const { t } = useSettings();
   const [data, setData] = useState(null);
@@ -18,19 +62,17 @@ export default function CapacityStatsPanel() {
   if (error) return <p className="alert">{error}</p>;
   if (!data) return <p className="hint">{t('fileList.loading')}</p>;
 
-  const maxTypeBytes = Math.max(1, ...data.fileTypes.map((f) => f.bytes));
-
   return (
     <div className="stats-section">
       <h3>{t('stats.capacity.title')}</h3>
 
       <div className="stats-summary">
         <div className="stats-summary-item">
-          <span className="stats-summary-value">{formatBytes(data.totalBytes)}</span>
+          <span className="stats-summary-value stats-value-teal">{formatBytes(data.totalBytes)}</span>
           <span className="stats-summary-label">{t('stats.capacity.total')}</span>
         </div>
         <div className="stats-summary-item">
-          <span className="stats-summary-value">{formatBytes(data.bandwidthBytes)}</span>
+          <span className="stats-summary-value stats-value-indigo">{formatBytes(data.bandwidthBytes)}</span>
           <span className="stats-summary-label">{t('stats.capacity.bandwidth')}</span>
         </div>
       </div>
@@ -61,32 +103,7 @@ export default function CapacityStatsPanel() {
       {data.fileTypes.length === 0 ? (
         <p className="hint">{t('stats.capacity.empty')}</p>
       ) : (
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>{t('fileList.name')}</th>
-              <th>{t('stats.storage.used')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.fileTypes.map((row) => (
-              <tr key={row.category}>
-                <td>{t(`stats.capacity.categories.${row.category}`)}</td>
-                <td>
-                  <span className="quota-footer">
-                    <span className="quota-bar">
-                      <span
-                        className="quota-bar-fill"
-                        style={{ width: `${Math.max(4, Math.round((row.bytes / maxTypeBytes) * 100))}%` }}
-                      />
-                    </span>
-                    <span className="quota-label">{formatBytes(row.bytes)}</span>
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <FileTypePieChart fileTypes={data.fileTypes} t={t} />
       )}
     </div>
   );

@@ -19,13 +19,13 @@ export default function UsageStatsPanel() {
 
   const { mobile, desktop, unknown } = data.deviceSplit;
   const deviceTotal = (mobile || 0) + (desktop || 0) + (unknown || 0);
-  const mobilePercent = deviceTotal ? Math.round(((mobile || 0) / deviceTotal) * 100) : 0;
+  const pct = (n) => (deviceTotal ? ((n || 0) / deviceTotal) * 100 : 0);
 
   return (
     <div className="stats-section">
       <div className="stats-summary">
         <div className="stats-summary-item">
-          <span className="stats-summary-value">
+          <span className="stats-summary-value stats-value-indigo">
             {data.activeSessions === null ? t('stats.usage.unknown') : data.activeSessions}
           </span>
           <span className="stats-summary-label">{t('stats.usage.activeSessions')}</span>
@@ -37,15 +37,32 @@ export default function UsageStatsPanel() {
         <p className="hint">{t('stats.usage.empty')}</p>
       ) : (
         <>
-          <div className="quota-footer">
-            <div className="quota-bar" style={{ width: '160px' }}>
-              <div className="quota-bar-fill" style={{ width: `${mobilePercent}%` }} />
-            </div>
-            <span className="quota-label">
-              {t('stats.usage.desktop')}: {desktop || 0} · {t('stats.usage.mobile')}: {mobile || 0}
-              {unknown ? ` · ${t('stats.usage.unknown')}: ${unknown}` : ''}
-            </span>
+          <div className="split-bar">
+            <div className="split-bar-segment" style={{ width: `${pct(desktop)}%`, background: '#1e7a86' }} />
+            <div className="split-bar-segment" style={{ width: `${pct(mobile)}%`, background: '#4f46e5' }} />
+            {unknown ? (
+              <div className="split-bar-segment" style={{ width: `${pct(unknown)}%`, background: '#94a3b8' }} />
+            ) : null}
           </div>
+          <ul className="pie-legend">
+            <li>
+              <span className="pie-swatch" style={{ background: '#1e7a86' }} />
+              <span className="pie-legend-label">{t('stats.usage.desktop')}</span>
+              <span className="pie-legend-value">{desktop || 0}</span>
+            </li>
+            <li>
+              <span className="pie-swatch" style={{ background: '#4f46e5' }} />
+              <span className="pie-legend-label">{t('stats.usage.mobile')}</span>
+              <span className="pie-legend-value">{mobile || 0}</span>
+            </li>
+            {unknown ? (
+              <li>
+                <span className="pie-swatch" style={{ background: '#94a3b8' }} />
+                <span className="pie-legend-label">{t('stats.usage.unknown')}</span>
+                <span className="pie-legend-value">{unknown}</span>
+              </li>
+            ) : null}
+          </ul>
 
           <h4>{t('stats.usage.loginTrend')}</h4>
           {data.loginTrend.length === 0 ? (

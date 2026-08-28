@@ -26,11 +26,15 @@ export default function SecurityStatsPanel() {
     <div className="stats-section">
       <div className="stats-summary">
         <div className="stats-summary-item">
-          <span className="stats-summary-value">{data.blockedLogins24h}</span>
+          <span className={`stats-summary-value ${data.blockedLogins24h > 0 ? 'stats-value-danger' : ''}`}>
+            {data.blockedLogins24h}
+          </span>
           <span className="stats-summary-label">{t('stats.security.blockedLogins')}</span>
         </div>
         <div className="stats-summary-item">
-          <span className="stats-summary-value">{data.expiredShareAccess24h}</span>
+          <span className={`stats-summary-value ${data.expiredShareAccess24h > 0 ? 'stats-value-warn' : ''}`}>
+            {data.expiredShareAccess24h}
+          </span>
           <span className="stats-summary-label">{t('stats.security.expiredAccess')}</span>
         </div>
       </div>

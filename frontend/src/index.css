@@ -13,14 +13,24 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Default: follow the system preference. An explicit data-theme attribute
+   (set by the in-app theme switcher) overrides this in either direction. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #16171b;
     --surface: #1e2027;
     --border: #2c2f38;
     --text: #e6e7eb;
     --text-muted: #9199a8;
   }
+}
+
+:root[data-theme='dark'] {
+  --bg: #16171b;
+  --surface: #1e2027;
+  --border: #2c2f38;
+  --text: #e6e7eb;
+  --text-muted: #9199a8;
 }
 
 * {
@@ -250,8 +260,9 @@ button:disabled {
 }
 
 .quota-bar-fill {
+  display: block;
   height: 100%;
-  background: var(--accent);
+  background: #1e7a86;
   transition: width 0.2s ease;
 }
 
@@ -261,6 +272,12 @@ button:disabled {
 
 .quota-bar-fill.full {
   background: var(--danger);
+}
+
+/* No quota at all (admins) - full bar, same fill color as everywhere else,
+   just with nothing to actually show progress against. */
+.quota-bar-fill.unlimited {
+  background: #1e7a86;
 }
 
 .quota-label {
@@ -564,6 +581,15 @@ tr:last-child td {
   overflow-x: auto;
 }
 
+.storage-overview {
+  margin-bottom: 2rem;
+}
+
+.storage-overview h3 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
 .users-table {
   width: 100%;
   border-collapse: collapse;
@@ -614,6 +640,16 @@ tr:last-child td {
 .badge.warn {
   color: var(--warn);
   background: color-mix(in srgb, var(--warn) 15%, var(--border));
+}
+
+.badge-button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.badge-button:hover {
+  background: color-mix(in srgb, var(--warn) 25%, var(--border));
 }
 
 .inline-form {

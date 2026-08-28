@@ -109,7 +109,7 @@ export default function App() {
   }
 
   if (view === 'stats') {
-    return <StatsPage onBack={() => navigate('/')} onLogout={handleLogout} />;
+    return <StatsPage user={user} onBack={() => navigate('/')} onLogout={handleLogout} />;
   }
 
   return (

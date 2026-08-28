@@ -65,6 +65,7 @@ export default {
     shared: 'Wird geteilt – Freigabe verwalten',
     orphanedBadge: 'verwaist',
     orphanedHint: 'Der zugehörige Benutzer wurde gelöscht. Dieser Ordner kann jetzt entfernt werden.',
+    reassignContent: 'Inhalt neu zuweisen',
     delete: 'Löschen',
     rename: 'Umbenennen',
     move: 'Verschieben',
@@ -83,6 +84,7 @@ export default {
   selection: {
     count: '{count} ausgewählt',
     move: 'Verschieben',
+    changeOwner: 'Besitzer ändern',
     clear: 'Auswahl aufheben',
   },
   breadcrumb: {
@@ -176,6 +178,10 @@ export default {
       total: 'Gesamt',
       lastActivity: 'Letzte Aktivität',
     },
+    storage: {
+      title: 'Speicherverbrauch',
+      used: 'Verbrauch',
+    },
   },
   wizard: {
     title: 'Ersteinrichtung',
@@ -242,6 +248,10 @@ export default {
       'Domain, die für generierte Freigabelinks verwendet wird. Leer lassen, um die aktuelle Adresse zu verwenden.',
     shareDomainReadOnlyHint: 'Wird vom Administrator verwaltet.',
     language: 'Sprache',
+    theme: 'Design',
+    themeSystem: 'Systemfarben',
+    themeLight: 'Hell',
+    themeDark: 'Dunkel',
     defaultQuotaGb: 'Standard-Speicherkontingent (GB)',
     defaultQuotaGbHint:
       '0 = unbegrenzt. Gilt für alle Nutzer ohne individuelles Kontingent (siehe Benutzerverwaltung). Administratoren sind immer unbegrenzt.',
@@ -289,11 +299,13 @@ export default {
   },
   quota: {
     usage: '{used} von {total} belegt',
+    usageUnlimited: '{used} (unbegrenzt)',
     uploadPartial:
       'Speicherkontingent erreicht - einige Dateien wurden nicht hochgeladen.',
   },
   owner: {
     title: 'Besitzer ändern: „{name}“',
+    titleMultiple: 'Besitzer für {count} Elemente ändern',
     recursiveHint: 'Gilt für alle Dateien in diesem Ordner (rekursiv).',
     select: 'Neuer Besitzer',
     choose: 'Bitte auswählen',
@@ -302,6 +314,7 @@ export default {
   errors: {
     NOT_AUTHENTICATED: 'Nicht angemeldet',
     INVALID_CREDENTIALS: 'Ungültiger Benutzername oder Passwort',
+    TOO_MANY_LOGIN_ATTEMPTS: 'Zu viele fehlgeschlagene Anmeldeversuche. Bitte später erneut versuchen.',
     MISSING_KEY: 'Fehlender Schlüssel',
     MISSING_PREFIX: 'Fehlender Pfad',
     INVALID_FOLDER_NAME: 'Ungültiger Ordnername',

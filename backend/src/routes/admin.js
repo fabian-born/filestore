@@ -8,8 +8,8 @@ import { isProtectedRoot } from '../permissions.js';
 import { createJob, getJob, scheduleCleanup } from '../moveJobs.js';
 import { listAllKeys, listAllKeysWithSize, statExists } from '../objectOps.js';
 import { renameFileOwner, setFileOwner, getFileOwners } from '../fileOwners.js';
-import { findById } from '../users.js';
-import { addUsage } from '../quota.js';
+import { findById, listUsers } from '../users.js';
+import { addUsage, getUsage, effectiveQuotaBytes } from '../quota.js';
 import { logActivity } from '../activity.js';
 
 const router = Router();
@@ -168,6 +168,20 @@ router.put('/admin/owner', requireAdmin, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'OWNER_CHANGE_FAILED' });
   }
+});
+
+// Aggregate storage usage across every user - each user already sees their
+// own via /quota/me, this is the admin-only "who's using how much" view.
+router.get('/admin/storage', requireAdmin, (req, res) => {
+  const settings = getSettings();
+  const overview = listUsers().map((u) => ({
+    id: u.id,
+    username: u.username,
+    isAdmin: u.isAdmin,
+    usedBytes: getUsage(u.id),
+    quotaBytes: effectiveQuotaBytes(u, settings),
+  }));
+  res.json({ users: overview });
 });
 
 export default router;

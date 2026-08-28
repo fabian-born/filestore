@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup the filestore SQLite database
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Adjust to wherever this repo is checked out on the production host.
+WorkingDirectory=/opt/filestore
+ExecStart=/opt/filestore/backup.sh

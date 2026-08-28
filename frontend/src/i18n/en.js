@@ -65,6 +65,7 @@ export default {
     shared: 'Shared – manage sharing',
     orphanedBadge: 'orphaned',
     orphanedHint: 'The matching user account has been deleted. This folder can now be removed.',
+    reassignContent: 'Reassign content',
     delete: 'Delete',
     rename: 'Rename',
     move: 'Move',
@@ -83,6 +84,7 @@ export default {
   selection: {
     count: '{count} selected',
     move: 'Move',
+    changeOwner: 'Change owner',
     clear: 'Clear selection',
   },
   breadcrumb: {
@@ -176,6 +178,10 @@ export default {
       total: 'Total',
       lastActivity: 'Last activity',
     },
+    storage: {
+      title: 'Storage usage',
+      used: 'Used',
+    },
   },
   wizard: {
     title: 'Initial setup',
@@ -240,6 +246,10 @@ export default {
       'Domain used for generated share links. Leave empty to use the current address.',
     shareDomainReadOnlyHint: 'Managed by the administrator.',
     language: 'Language',
+    theme: 'Theme',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
     defaultQuotaGb: 'Default storage quota (GB)',
     defaultQuotaGbHint:
       '0 = unlimited. Applies to every user without an individual quota (see User management). Admins are always unlimited.',
@@ -287,10 +297,12 @@ export default {
   },
   quota: {
     usage: '{used} of {total} used',
+    usageUnlimited: '{used} (unlimited)',
     uploadPartial: 'Storage quota reached - some files were not uploaded.',
   },
   owner: {
     title: 'Change owner: "{name}"',
+    titleMultiple: 'Change owner for {count} items',
     recursiveHint: 'Applies to every file in this folder (recursively).',
     select: 'New owner',
     choose: 'Please choose',
@@ -299,6 +311,7 @@ export default {
   errors: {
     NOT_AUTHENTICATED: 'Not signed in',
     INVALID_CREDENTIALS: 'Invalid username or password',
+    TOO_MANY_LOGIN_ATTEMPTS: 'Too many failed login attempts. Please try again later.',
     MISSING_KEY: 'Missing key',
     MISSING_PREFIX: 'Missing path',
     INVALID_FOLDER_NAME: 'Invalid folder name',

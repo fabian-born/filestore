@@ -19,6 +19,18 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   for a whole folder, picking the new owner from the list of registered
   users. Quota usage moves with it (freed from the old owner, charged to
   the new one).
+- Rate limiting on login (10 failed attempts per 15 minutes per IP;
+  successful logins don't count against the limit).
+- `backup.sh` / `backend/scripts/backup-db.js` for online, non-disruptive
+  backups of `shares.db` with retention, plus systemd timer/cron examples.
+- Owner reassignment for a multi-selection (not just one file/folder at a
+  time), a one-click "reassign content" action right on an orphaned user
+  folder, and an admin-only storage-usage overview across all users on the
+  Stats page.
+- Theme switcher (System/Light/Dark) in Settings, defaulting to System
+  (i.e. unchanged from before) - a per-browser preference stored in
+  localStorage, applied before first paint to avoid a flash of the wrong
+  theme.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

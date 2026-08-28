@@ -263,6 +263,10 @@ export function changeOwner(key, isFolder, ownerId) {
   });
 }
 
+export function getStorageOverview() {
+  return request('/admin/storage');
+}
+
 export function updateUserQuota(id, quotaGb) {
   return request(`/users/${id}/quota`, {
     method: 'PUT',

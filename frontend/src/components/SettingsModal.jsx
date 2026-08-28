@@ -3,6 +3,7 @@ import * as api from '../api.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 import UsersPanel from './UsersPanel.jsx';
 import AppInfoPanel from './AppInfoPanel.jsx';
+import { getStoredTheme, setStoredTheme } from '../theme.js';
 
 export default function SettingsModal({ onClose, user }) {
   const { settings, updateSettings, updateOauthSettings, updateSmtpSettings, t } = useSettings();
@@ -11,6 +12,14 @@ export default function SettingsModal({ onClose, user }) {
   const [shareDomain, setShareDomain] = useState(settings.shareDomain || '');
   const [language, setLanguage] = useState(settings.language || 'de');
   const [defaultQuotaGb, setDefaultQuotaGb] = useState(String(settings.defaultQuotaGb ?? 0));
+  const [theme, setTheme] = useState(getStoredTheme());
+
+  // Applied immediately, not via the form's save button - it's a local
+  // per-browser preference, not one of the backend-persisted settings.
+  const handleThemeChange = (value) => {
+    setTheme(value);
+    setStoredTheme(value);
+  };
 
   const [bucket, setBucket] = useState(settings.bucket || '');
   const [minioUrl, setMinioUrl] = useState(settings.minioUrl || '');
@@ -223,6 +232,15 @@ export default function SettingsModal({ onClose, user }) {
               <select id="settings-language" value={language} onChange={(e) => setLanguage(e.target.value)}>
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
+              </select>
+
+              <label className="field-label" htmlFor="settings-theme">
+                {t('settings.theme')}
+              </label>
+              <select id="settings-theme" value={theme} onChange={(e) => handleThemeChange(e.target.value)}>
+                <option value="system">{t('settings.themeSystem')}</option>
+                <option value="light">{t('settings.themeLight')}</option>
+                <option value="dark">{t('settings.themeDark')}</option>
               </select>
 
               {user?.isAdmin && (

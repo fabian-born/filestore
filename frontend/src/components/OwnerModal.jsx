@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import * as api from '../api.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 
-export default function OwnerModal({ item, onClose, onChanged }) {
+export default function OwnerModal({ items, onClose, onChanged }) {
   const { t } = useSettings();
   const [users, setUsers] = useState([]);
   const [ownerId, setOwnerId] = useState('');
@@ -16,16 +16,23 @@ export default function OwnerModal({ item, onClose, onChanged }) {
       .catch((err) => setError(t(`errors.${err.code}`)));
   }, [t]);
 
+  const hasFolder = items.some((item) => item.isFolder);
+
   const submit = async (e) => {
     e.preventDefault();
     if (!ownerId) return;
     setSaving(true);
     setError(null);
     try {
-      await api.changeOwner(item.key, item.isFolder, Number(ownerId));
+      const results = await Promise.allSettled(
+        items.map((item) => api.changeOwner(item.key, item.isFolder, Number(ownerId)))
+      );
+      const failed = results.filter((r) => r.status === 'rejected');
+      if (failed.length === items.length) {
+        setError(t(`errors.${failed[0].reason?.code}`));
+        return;
+      }
       onChanged();
-    } catch (err) {
-      setError(t(`errors.${err.code}`));
     } finally {
       setSaving(false);
     }
@@ -34,8 +41,12 @@ export default function OwnerModal({ item, onClose, onChanged }) {
   return (
     <div className="modal-backdrop" onClick={saving ? undefined : onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>{t('owner.title', { name: item.name })}</h2>
-        {item.isFolder && <p className="hint">{t('owner.recursiveHint')}</p>}
+        <h2>
+          {items.length === 1
+            ? t('owner.title', { name: items[0].name })
+            : t('owner.titleMultiple', { count: items.length })}
+        </h2>
+        {hasFolder && <p className="hint">{t('owner.recursiveHint')}</p>}
 
         <form onSubmit={submit}>
           <label className="field-label" htmlFor="owner-select">

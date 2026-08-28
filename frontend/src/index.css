@@ -261,7 +261,7 @@ button:disabled {
 
 .quota-bar-fill {
   height: 100%;
-  background: var(--accent);
+  background: #1e7a86;
   transition: width 0.2s ease;
 }
 
@@ -273,11 +273,10 @@ button:disabled {
   background: var(--danger);
 }
 
-/* No quota at all (admins) - full but muted, since there's no ceiling to
-   show progress against. */
+/* No quota at all (admins) - full bar, same fill color as everywhere else,
+   just with nothing to actually show progress against. */
 .quota-bar-fill.unlimited {
-  background: var(--text-muted);
-  opacity: 0.35;
+  background: #1e7a86;
 }
 
 .quota-label {

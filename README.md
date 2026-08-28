@@ -20,6 +20,23 @@ SMTP and activity auditing.
   email, sent from your configured SMTP account).
 - **Admin tools** — user management, SMTP settings with test-email, bucket
   configuration, and a paginated, filterable **activity log**.
+- **Per-user storage quotas** — a global default (admin-configurable, in GB,
+  0 = unlimited) plus an optional per-user override, enforced during upload,
+  with a usage bar shown to each user and an overview across all users for
+  admins.
+- **Owner reassignment** — admins can move a file or a whole folder's
+  ownership to another user, individually or across a multi-selection; quota
+  usage moves with it.
+- **Admin statistics** — beyond file view/download counts, a tabbed
+  dashboard covering security/audit (blocked logins, expired share-link
+  access, a recent admin-changes log), usage behaviour (login trend, active
+  sessions, desktop/mobile split) and capacity/growth (storage history, a
+  file-type breakdown as a pie chart, bandwidth served via shares).
+- **Login rate limiting** (10 failed attempts per 15 minutes per IP) and
+  online, non-disruptive database backups with retention (see
+  [Backups](#backups)).
+- **Theme switcher** (System/Light/Dark), a per-browser preference applied
+  before first paint.
 - **Mobile-responsive UI** — collapsible action menus, an info popover for
   file details, and pagination (25/50/100/all) for both file listings and
   the activity log.

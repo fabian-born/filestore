@@ -6,7 +6,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-REGISTRY="ghcr.io/fabian-born"
+REGISTRY="${REGISTRY:-ghcr.io/fabian-born}"
+export REGISTRY
 TODAY=$(date +"%Y.%m.%d")
 
 if [[ -f VERSION ]]; then

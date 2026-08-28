@@ -635,6 +635,16 @@ tr:last-child td {
   background: color-mix(in srgb, var(--warn) 15%, var(--border));
 }
 
+.badge-button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.badge-button:hover {
+  background: color-mix(in srgb, var(--warn) 25%, var(--border));
+}
+
 .inline-form {
   border-top: 1px solid var(--border);
   padding-top: 1rem;

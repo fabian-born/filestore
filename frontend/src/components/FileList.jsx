@@ -130,7 +130,7 @@ export default function FileList({
                   {f.orphaned && showMove && (
                     <button
                       type="button"
-                      className="link"
+                      className="badge warn badge-button"
                       onClick={() => onChangeOwner({ key: f.key, name: f.name, isFolder: true })}
                     >
                       {t('fileList.reassignContent')}

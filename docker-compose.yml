@@ -1,0 +1,27 @@
+services:
+  webtools-fileexplorer-backend:
+    build:
+      context: ./backend
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    image: ghcr.io/fabian-born/webtools-backend:${APP_VERSION:-dev}
+    env_file:
+      - .env
+    environment:
+      PORT: 3452
+      DATA_DIR: /app/data
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "3452"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    image: ghcr.io/fabian-born/webtools-frontend:${APP_VERSION:-dev}
+    depends_on:
+      - webtools-fileexplorer-backend
+    ports:
+      - "8081:80"

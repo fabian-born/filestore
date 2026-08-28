@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+
+# Runtime data / secrets - never publish real deployment state
+data/
+*.db
+*.db-*
+.env
+
+# Local tooling config
+.claude/
+
+# Editor/OS cruft
+.DS_Store
+*.swp

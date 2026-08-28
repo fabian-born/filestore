@@ -1,0 +1,10 @@
+[Unit]
+Description=Reset the filestore public demo stack every 6 hours
+
+[Timer]
+# Change to e.g. */3 for every 3 hours.
+OnCalendar=0/6:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

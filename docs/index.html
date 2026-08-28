@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>filestore</title>
+<meta name="description" content="A self-hosted, MinIO-backed file manager with local + OAuth login, sharing, and a mobile-friendly UI.">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --border: #e2e4e9;
+    --text: #1a1c23;
+    --text-muted: #6b7280;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+  header.hero {
+    padding: 4rem 0 3rem;
+    text-align: center;
+  }
+  header.hero img { height: 4.5rem; width: auto; margin-bottom: 1.5rem; }
+  header.hero p.tagline {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 640px;
+    margin: 0 auto 2rem;
+  }
+  .cta-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border);
+  }
+  .btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn.primary:hover { background: var(--accent-hover); }
+  .btn.secondary { background: var(--surface); color: var(--text); }
+
+  section { padding: 2.5rem 0; }
+  h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0 0 2rem;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.25rem;
+  }
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+  .feature h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+  .feature p { margin: 0; color: var(--text-muted); font-size: 0.92rem; }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .gallery figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .gallery figcaption {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+  .gallery .mobile-shot { max-width: 260px; margin: 0 auto; }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem 0 3.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  footer a { color: var(--text-muted); }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <img src="assets/filestore_logo.png" alt="filestore">
+      <p class="tagline">
+        A self-hosted, MinIO-backed file manager: browse, upload, share and
+        organize files in your own S3-compatible bucket, with local or
+        OIDC/OAuth login and a mobile-friendly UI.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/fabian-born/filestore">View on GitHub</a>
+        <a class="btn secondary" href="https://github.com/fabian-born/filestore#quick-start">Installation guide</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap">
+    <h2>Features</h2>
+    <div class="features">
+      <div class="feature">
+        <h3>Local + OAuth login</h3>
+        <p>Plug in any generic OIDC provider alongside the built-in local admin account.</p>
+      </div>
+      <div class="feature">
+        <h3>Sharing</h3>
+        <p>Expiring links, optional inline preview, QR codes, and per-recipient email invites.</p>
+      </div>
+      <div class="feature">
+        <h3>Owner tracking</h3>
+        <p>Every file remembers who uploaded it — surviving renames and moves.</p>
+      </div>
+      <div class="feature">
+        <h3>Admin tooling</h3>
+        <p>User management, SMTP settings with test-email, and a paginated activity log.</p>
+      </div>
+      <div class="feature">
+        <h3>Mobile-friendly</h3>
+        <p>Collapsible action menus, an info popover for details, and icon-only controls.</p>
+      </div>
+      <div class="feature">
+        <h3>Sortable & paginated</h3>
+        <p>Sort by name, size or date; page through large listings 25/50/100/all at a time.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Screenshots</h2>
+    <div class="gallery">
+      <figure>
+        <img src="screenshots/browser-desktop.png" alt="File browser">
+        <figcaption>File browser</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/share-modal.png" alt="Sharing a file">
+        <figcaption>Sharing, with QR code and email invites</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/activity.png" alt="Activity log">
+        <figcaption>Activity log</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/app-info.png" alt="Settings">
+        <figcaption>Admin settings</figcaption>
+      </figure>
+      <figure class="mobile-shot">
+        <img src="screenshots/browser-mobile.png" alt="Mobile view">
+        <figcaption>Mobile view</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      <a href="https://github.com/fabian-born/filestore">github.com/fabian-born/filestore</a>
+      — MIT licensed
+    </p>
+  </footer>
+</body>
+</html>

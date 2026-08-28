@@ -1,0 +1,54 @@
+networks:
+  filestore-demo:
+
+volumes:
+  demo-minio-data:
+  demo-backend-data:
+
+services:
+  minio:
+    image: minio/minio
+    command: server /data
+    restart: unless-stopped
+    networks:
+      - filestore-demo
+    environment:
+      MINIO_ROOT_USER: demo
+      MINIO_ROOT_PASSWORD: demo12345
+    volumes:
+      - demo-minio-data:/data
+
+  webtools-fileexplorer-backend:
+    image: ghcr.io/fabian-born/webtools-backend:${APP_VERSION:-latest}
+    restart: unless-stopped
+    networks:
+      - filestore-demo
+    depends_on:
+      - minio
+    environment:
+      PORT: 3452
+      DATA_DIR: /app/data
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: demo
+      MINIO_SECRET_KEY: demo12345
+      MINIO_BUCKET: demo
+      AUTH_USERNAME: demo
+      AUTH_PASSWORD: demo12345
+      SESSION_SECRET: demo-session-secret-change-if-you-fork-this
+      COOKIE_SECURE: "false"
+    volumes:
+      - demo-backend-data:/app/data
+    expose:
+      - "3452"
+
+  frontend:
+    image: ghcr.io/fabian-born/webtools-frontend:${APP_VERSION:-latest}
+    restart: unless-stopped
+    networks:
+      - filestore-demo
+    depends_on:
+      - webtools-fileexplorer-backend
+    ports:
+      - "8082:80"

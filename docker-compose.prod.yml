@@ -1,0 +1,23 @@
+services:
+  webtools-fileexplorer-backend:
+    image: ghcr.io/fabian-born/webtools-backend:latest
+    restart: unless-stopped
+    environment:
+      PORT: 3452
+      DATA_DIR: /app/data
+      AUTH_USERNAME: ${AUTH_USERNAME}
+      AUTH_PASSWORD: ${AUTH_PASSWORD}
+      SESSION_SECRET: ${SESSION_SECRET}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "3452"
+
+  frontend:
+    image: ghcr.io/fabian-born/webtools-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - webtools-fileexplorer-backend
+    ports:
+      - "8081:80"

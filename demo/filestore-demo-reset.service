@@ -1,0 +1,10 @@
+[Unit]
+Description=Reset the filestore public demo stack
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Adjust to wherever this repo is checked out on the demo host.
+WorkingDirectory=/opt/filestore/demo
+ExecStart=/opt/filestore/demo/reset.sh

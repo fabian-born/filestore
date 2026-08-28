@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShareIcon, DeleteIcon, MoveIcon, RenameIcon, InfoIcon, MenuIcon } from './icons.jsx';
+import { ShareIcon, DeleteIcon, MoveIcon, RenameIcon, InfoIcon, MenuIcon, ProfileIcon } from './icons.jsx';
 import Popover from './Popover.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
 import { formatBytes } from '../format.js';
@@ -35,6 +35,7 @@ export default function FileList({
   onDelete,
   onShare,
   onMove,
+  onChangeOwner,
   onRename,
   onDropFiles,
   pathMode,
@@ -141,6 +142,16 @@ export default function FileList({
                         <MoveIcon />
                       </button>
                     )}
+                    {showMove && (
+                      <button
+                        className="icon-btn"
+                        title={t('fileList.changeOwner')}
+                        aria-label={t('fileList.changeOwner')}
+                        onClick={() => onChangeOwner({ key: f.key, name: f.name, isFolder: true })}
+                      >
+                        <ProfileIcon />
+                      </button>
+                    )}
                     <button
                       className="icon-btn"
                       title={t('fileList.rename')}
@@ -174,6 +185,16 @@ export default function FileList({
                               onClick={() => {
                                 close();
                                 onMove({ key: f.key, name: f.name, isFolder: true });
+                              }}
+                            />
+                          )}
+                          {showMove && (
+                            <MenuItem
+                              icon={<ProfileIcon />}
+                              label={t('fileList.changeOwner')}
+                              onClick={() => {
+                                close();
+                                onChangeOwner({ key: f.key, name: f.name, isFolder: true });
                               }}
                             />
                           )}
@@ -244,6 +265,16 @@ export default function FileList({
                         <MoveIcon />
                       </button>
                     )}
+                    {showMove && (
+                      <button
+                        className="icon-btn"
+                        title={t('fileList.changeOwner')}
+                        aria-label={t('fileList.changeOwner')}
+                        onClick={() => onChangeOwner({ key: f.key, name: f.name, isFolder: false })}
+                      >
+                        <ProfileIcon />
+                      </button>
+                    )}
                     <button
                       className={`icon-btn ${f.shared ? 'shared' : ''}`}
                       title={f.shared ? t('fileList.shared') : t('fileList.share')}
@@ -310,6 +341,16 @@ export default function FileList({
                               onClick={() => {
                                 close();
                                 onMove({ key: f.key, name: f.name, isFolder: false });
+                              }}
+                            />
+                          )}
+                          {showMove && (
+                            <MenuItem
+                              icon={<ProfileIcon />}
+                              label={t('fileList.changeOwner')}
+                              onClick={() => {
+                                close();
+                                onChangeOwner({ key: f.key, name: f.name, isFolder: false });
                               }}
                             />
                           )}

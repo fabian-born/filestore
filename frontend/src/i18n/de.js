@@ -68,6 +68,7 @@ export default {
     delete: 'Löschen',
     rename: 'Umbenennen',
     move: 'Verschieben',
+    changeOwner: 'Besitzer ändern',
     selectAll: 'Alle auswählen',
     select: '„{name}“ auswählen',
   },
@@ -158,6 +159,7 @@ export default {
       smtp_test_failed: 'Test-E-Mail fehlgeschlagen an: {detail}',
       share_email: 'Freigabe per E-Mail gesendet an: {detail}',
       share_email_failed: 'Freigabe per E-Mail fehlgeschlagen an: {detail}',
+      owner_change: 'Besitzer geändert: {key} → {detail}',
     },
   },
   fileStats: {
@@ -290,6 +292,13 @@ export default {
     uploadPartial:
       'Speicherkontingent erreicht - einige Dateien wurden nicht hochgeladen.',
   },
+  owner: {
+    title: 'Besitzer ändern: „{name}“',
+    recursiveHint: 'Gilt für alle Dateien in diesem Ordner (rekursiv).',
+    select: 'Neuer Besitzer',
+    choose: 'Bitte auswählen',
+    change: 'Besitzer ändern',
+  },
   errors: {
     NOT_AUTHENTICATED: 'Nicht angemeldet',
     INVALID_CREDENTIALS: 'Ungültiger Benutzername oder Passwort',
@@ -363,6 +372,10 @@ export default {
     LOCAL_ADMIN_REQUIRED: 'Dazu musst du lokal als Administrator angemeldet sein',
     QUOTA_EXCEEDED: 'Speicherkontingent erreicht - Upload nicht möglich',
     INVALID_QUOTA: 'Ungültiges Speicherkontingent',
+    MISSING_OWNER: 'Bitte einen Besitzer auswählen',
+    OWNER_NOT_FOUND: 'Benutzer nicht gefunden',
+    FILE_NOT_FOUND: 'Datei nicht gefunden',
+    OWNER_CHANGE_FAILED: 'Besitzer konnte nicht geändert werden',
     GENERIC: 'Ein Fehler ist aufgetreten',
   },
 };

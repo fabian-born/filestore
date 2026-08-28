@@ -68,6 +68,7 @@ export default {
     delete: 'Delete',
     rename: 'Rename',
     move: 'Move',
+    changeOwner: 'Change owner',
     selectAll: 'Select all',
     select: 'Select "{name}"',
   },
@@ -158,6 +159,7 @@ export default {
       smtp_test_failed: 'Test email failed for: {detail}',
       share_email: 'Share emailed to: {detail}',
       share_email_failed: 'Share email failed for: {detail}',
+      owner_change: 'Owner changed: {key} → {detail}',
     },
   },
   fileStats: {
@@ -287,6 +289,13 @@ export default {
     usage: '{used} of {total} used',
     uploadPartial: 'Storage quota reached - some files were not uploaded.',
   },
+  owner: {
+    title: 'Change owner: "{name}"',
+    recursiveHint: 'Applies to every file in this folder (recursively).',
+    select: 'New owner',
+    choose: 'Please choose',
+    change: 'Change owner',
+  },
   errors: {
     NOT_AUTHENTICATED: 'Not signed in',
     INVALID_CREDENTIALS: 'Invalid username or password',
@@ -360,6 +369,10 @@ export default {
     LOCAL_ADMIN_REQUIRED: 'You need to be signed in locally as an admin to do this',
     QUOTA_EXCEEDED: 'Storage quota reached - upload not possible',
     INVALID_QUOTA: 'Invalid storage quota',
+    MISSING_OWNER: 'Please select an owner',
+    OWNER_NOT_FOUND: 'User not found',
+    FILE_NOT_FOUND: 'File not found',
+    OWNER_CHANGE_FAILED: 'Could not change the owner',
     GENERIC: 'Something went wrong',
   },
 };

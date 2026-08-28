@@ -10,6 +10,7 @@ import DeleteFolderModal from './DeleteFolderModal.jsx';
 import SettingsModal from './SettingsModal.jsx';
 import ProfileModal from './ProfileModal.jsx';
 import MoveModal from './MoveModal.jsx';
+import OwnerModal from './OwnerModal.jsx';
 import Pagination from './Pagination.jsx';
 import { SettingsIcon, ProfileIcon, ActivityIcon, StatsIcon } from './icons.jsx';
 import QuotaFooter from './QuotaFooter.jsx';
@@ -30,6 +31,7 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
   const [renameTarget, setRenameTarget] = useState(null);
   const [deleteFolderTarget, setDeleteFolderTarget] = useState(null);
   const [moveItems, setMoveItems] = useState(null);
+  const [ownerTarget, setOwnerTarget] = useState(null);
   const [selected, setSelected] = useState(new Map());
   const [uploadProgress, setUploadProgress] = useState(null);
   const [renamedNotice, setRenamedNotice] = useState(null);
@@ -374,6 +376,7 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
         onDelete={handleDelete}
         onShare={setShareKey}
         onMove={(item) => setMoveItems([item])}
+        onChangeOwner={setOwnerTarget}
         onRename={setRenameTarget}
         onDropFiles={handleUpload}
         pathMode={isSearching}
@@ -437,6 +440,17 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
           onMoved={() => {
             setMoveItems(null);
             setSelected(new Map());
+            refresh();
+          }}
+        />
+      )}
+
+      {ownerTarget && (
+        <OwnerModal
+          item={ownerTarget}
+          onClose={() => setOwnerTarget(null)}
+          onChanged={() => {
+            setOwnerTarget(null);
             refresh();
           }}
         />

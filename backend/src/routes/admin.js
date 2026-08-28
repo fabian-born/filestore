@@ -6,8 +6,11 @@ import db from '../db.js';
 import { normalizePrefix, basename } from '../utils.js';
 import { isProtectedRoot } from '../permissions.js';
 import { createJob, getJob, scheduleCleanup } from '../moveJobs.js';
-import { listAllKeys, statExists } from '../objectOps.js';
-import { renameFileOwner } from '../fileOwners.js';
+import { listAllKeys, listAllKeysWithSize, statExists } from '../objectOps.js';
+import { renameFileOwner, setFileOwner, getFileOwners } from '../fileOwners.js';
+import { findById } from '../users.js';
+import { addUsage } from '../quota.js';
+import { logActivity } from '../activity.js';
 
 const router = Router();
 
@@ -99,6 +102,72 @@ router.get('/admin/move/:jobId', requireAdmin, (req, res) => {
   const job = getJob(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'JOB_NOT_FOUND' });
   res.json({ status: job.status, total: job.total, moved: job.moved, error: job.error });
+});
+
+// Reassigns the owner of a single file, or - recursively - of every file
+// under a folder. Quota usage moves with it: the previous owner (if any) is
+// credited back, the new owner is charged, based on each object's *actual*
+// current size (not whatever might be stale in file_owners).
+router.put('/admin/owner', requireAdmin, async (req, res) => {
+  const { key, isFolder, ownerId } = req.body || {};
+  if (!key) return res.status(400).json({ error: 'MISSING_KEY' });
+  if (!ownerId) return res.status(400).json({ error: 'MISSING_OWNER' });
+
+  const newOwner = findById(Number(ownerId));
+  if (!newOwner) return res.status(404).json({ error: 'OWNER_NOT_FOUND' });
+
+  const bucket = getSettings().bucket;
+  const client = getMinioClient();
+
+  try {
+    if (isFolder) {
+      const prefix = normalizePrefix(key);
+      const entries = (await listAllKeysWithSize(client, bucket, prefix)).filter(
+        (e) => !e.key.endsWith('/.keep')
+      );
+
+      if (entries.length) {
+        const existing = getFileOwners(entries.map((e) => e.key));
+        const deltas = new Map();
+        for (const { key: entryKey, size } of entries) {
+          const prevOwnerId = existing.get(entryKey)?.ownerId;
+          if (prevOwnerId) deltas.set(prevOwnerId, (deltas.get(prevOwnerId) || 0) - size);
+          deltas.set(newOwner.id, (deltas.get(newOwner.id) || 0) + size);
+          setFileOwner(entryKey, newOwner.id, newOwner.username, size);
+        }
+        deltas.forEach((delta, id) => addUsage(id, delta));
+      }
+
+      logActivity({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'owner_change',
+        objectKey: prefix,
+        detail: newOwner.username,
+      });
+      return res.json({ ok: true, count: entries.length });
+    }
+
+    const stat = await client.statObject(bucket, key).catch(() => null);
+    if (!stat) return res.status(404).json({ error: 'FILE_NOT_FOUND' });
+
+    const prevOwnerId = getFileOwners([key]).get(key)?.ownerId;
+    if (prevOwnerId) addUsage(prevOwnerId, -stat.size);
+    setFileOwner(key, newOwner.id, newOwner.username, stat.size);
+    addUsage(newOwner.id, stat.size);
+
+    logActivity({
+      userId: req.session.userId,
+      username: req.session.username,
+      action: 'owner_change',
+      objectKey: key,
+      detail: newOwner.username,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'OWNER_CHANGE_FAILED' });
+  }
 });
 
 export default router;

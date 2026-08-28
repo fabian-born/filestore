@@ -15,6 +15,10 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   unlimited. Enforced during upload (aborting mid-stream rather than only
   after the fact), with usage tracked incrementally on upload/delete and a
   usage progress bar shown to each user for their own quota.
+- Admin-only file ownership reassignment, for a single file or recursively
+  for a whole folder, picking the new owner from the list of registered
+  users. Quota usage moves with it (freed from the old owner, charged to
+  the new one).
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

@@ -255,6 +255,14 @@ export function getMyQuota() {
   return request('/quota/me');
 }
 
+export function changeOwner(key, isFolder, ownerId) {
+  return request('/admin/owner', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, isFolder, ownerId }),
+  });
+}
+
 export function updateUserQuota(id, quotaGb) {
   return request(`/users/${id}/quota`, {
     method: 'PUT',

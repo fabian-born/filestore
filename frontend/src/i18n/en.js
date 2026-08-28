@@ -65,6 +65,7 @@ export default {
     shared: 'Shared – manage sharing',
     orphanedBadge: 'orphaned',
     orphanedHint: 'The matching user account has been deleted. This folder can now be removed.',
+    reassignContent: 'Reassign content',
     delete: 'Delete',
     rename: 'Rename',
     move: 'Move',
@@ -83,6 +84,7 @@ export default {
   selection: {
     count: '{count} selected',
     move: 'Move',
+    changeOwner: 'Change owner',
     clear: 'Clear selection',
   },
   breadcrumb: {
@@ -175,6 +177,10 @@ export default {
       downloads: 'Downloads',
       total: 'Total',
       lastActivity: 'Last activity',
+    },
+    storage: {
+      title: 'Storage usage',
+      used: 'Used',
     },
   },
   wizard: {
@@ -291,6 +297,7 @@ export default {
   },
   owner: {
     title: 'Change owner: "{name}"',
+    titleMultiple: 'Change owner for {count} items',
     recursiveHint: 'Applies to every file in this folder (recursively).',
     select: 'New owner',
     choose: 'Please choose',

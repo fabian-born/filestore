@@ -1,7 +1,7 @@
 import StatsPanel from './StatsPanel.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
 
-export default function StatsPage({ onBack, onLogout }) {
+export default function StatsPage({ user, onBack, onLogout }) {
   const { t } = useSettings();
 
   return (
@@ -18,7 +18,7 @@ export default function StatsPage({ onBack, onLogout }) {
         </div>
       </header>
 
-      <StatsPanel />
+      <StatsPanel showStorage={Boolean(user?.isAdmin)} />
     </div>
   );
 }

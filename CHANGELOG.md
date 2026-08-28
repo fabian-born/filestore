@@ -23,6 +23,10 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   successful logins don't count against the limit).
 - `backup.sh` / `backend/scripts/backup-db.js` for online, non-disruptive
   backups of `shares.db` with retention, plus systemd timer/cron examples.
+- Owner reassignment for a multi-selection (not just one file/folder at a
+  time), a one-click "reassign content" action right on an orphaned user
+  folder, and an admin-only storage-usage overview across all users on the
+  Stats page.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

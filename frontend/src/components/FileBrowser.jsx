@@ -362,6 +362,11 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
           <button type="button" onClick={() => setMoveItems(Array.from(selected.values()))}>
             {t('selection.move')}
           </button>
+          {user?.isAdmin && (
+            <button type="button" onClick={() => setOwnerTarget(Array.from(selected.values()))}>
+              {t('selection.changeOwner')}
+            </button>
+          )}
           <button type="button" onClick={() => setSelected(new Map())}>
             {t('selection.clear')}
           </button>
@@ -376,7 +381,7 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
         onDelete={handleDelete}
         onShare={setShareKey}
         onMove={(item) => setMoveItems([item])}
-        onChangeOwner={setOwnerTarget}
+        onChangeOwner={(item) => setOwnerTarget([item])}
         onRename={setRenameTarget}
         onDropFiles={handleUpload}
         pathMode={isSearching}
@@ -447,10 +452,11 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
 
       {ownerTarget && (
         <OwnerModal
-          item={ownerTarget}
+          items={ownerTarget}
           onClose={() => setOwnerTarget(null)}
           onChanged={() => {
             setOwnerTarget(null);
+            setSelected(new Map());
             refresh();
           }}
         />

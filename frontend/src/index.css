@@ -564,6 +564,15 @@ tr:last-child td {
   overflow-x: auto;
 }
 
+.storage-overview {
+  margin-bottom: 2rem;
+}
+
+.storage-overview h3 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
 .users-table {
   width: 100%;
   border-collapse: collapse;

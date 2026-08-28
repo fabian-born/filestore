@@ -65,6 +65,7 @@ export default {
     shared: 'Wird geteilt – Freigabe verwalten',
     orphanedBadge: 'verwaist',
     orphanedHint: 'Der zugehörige Benutzer wurde gelöscht. Dieser Ordner kann jetzt entfernt werden.',
+    reassignContent: 'Inhalt neu zuweisen',
     delete: 'Löschen',
     rename: 'Umbenennen',
     move: 'Verschieben',
@@ -83,6 +84,7 @@ export default {
   selection: {
     count: '{count} ausgewählt',
     move: 'Verschieben',
+    changeOwner: 'Besitzer ändern',
     clear: 'Auswahl aufheben',
   },
   breadcrumb: {
@@ -175,6 +177,10 @@ export default {
       downloads: 'Downloads',
       total: 'Gesamt',
       lastActivity: 'Letzte Aktivität',
+    },
+    storage: {
+      title: 'Speicherverbrauch',
+      used: 'Verbrauch',
     },
   },
   wizard: {
@@ -294,6 +300,7 @@ export default {
   },
   owner: {
     title: 'Besitzer ändern: „{name}“',
+    titleMultiple: 'Besitzer für {count} Elemente ändern',
     recursiveHint: 'Gilt für alle Dateien in diesem Ordner (rekursiv).',
     select: 'Neuer Besitzer',
     choose: 'Bitte auswählen',

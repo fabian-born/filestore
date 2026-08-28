@@ -127,6 +127,15 @@ export default function FileList({
                       {t('fileList.orphanedBadge')}
                     </span>
                   )}
+                  {f.orphaned && showMove && (
+                    <button
+                      type="button"
+                      className="link"
+                      onClick={() => onChangeOwner({ key: f.key, name: f.name, isFolder: true })}
+                    >
+                      {t('fileList.reassignContent')}
+                    </button>
+                  )}
                 </td>
                 <td>—</td>
                 <td>—</td>

@@ -5,6 +5,7 @@ import { sanitizeSegment } from '../utils.js';
 import { getMinioClient } from '../minioClient.js';
 import { getSettings } from '../settings.js';
 import { homePrefix } from '../permissions.js';
+import { logActivity } from '../activity.js';
 
 const router = Router();
 
@@ -39,6 +40,12 @@ router.post('/users', requireAdmin, async (req, res) => {
     return res.status(500).json({ error: 'CREATE_USER_FAILED' });
   }
 
+  logActivity({
+    userId: req.session.userId,
+    username: req.session.username,
+    action: 'user_created',
+    detail: `${name}${user.isAdmin ? ' (admin)' : ''}`,
+  });
   res.status(201).json(user);
 });
 
@@ -52,6 +59,12 @@ router.put('/users/:id/password', requireAdmin, (req, res) => {
   if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
   updatePassword(user.id, password);
+  logActivity({
+    userId: req.session.userId,
+    username: req.session.username,
+    action: 'password_reset',
+    detail: user.username,
+  });
   res.json({ ok: true });
 });
 
@@ -65,6 +78,12 @@ router.put('/users/:id/quota', requireAdmin, (req, res) => {
   if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
   const updated = updateUserQuota(user.id, quotaGb);
+  logActivity({
+    userId: req.session.userId,
+    username: req.session.username,
+    action: 'quota_change',
+    detail: `${user.username} -> ${quotaGb === null ? 'default' : quotaGb === 0 ? 'unlimited' : `${quotaGb} GB`}`,
+  });
   res.json({ id: updated.id, quotaGb: updated.quota_gb ?? null });
 });
 
@@ -80,6 +99,12 @@ router.delete('/users/:id', requireAdmin, (req, res) => {
   }
 
   deleteUser(id);
+  logActivity({
+    userId: req.session.userId,
+    username: req.session.username,
+    action: 'user_deleted',
+    detail: user.username,
+  });
   res.json({ ok: true });
 });
 

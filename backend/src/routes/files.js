@@ -329,7 +329,7 @@ router.post('/upload', (req, res) => {
 
       usedSoFar += size;
       uploadedCount += 1;
-      setFileOwner(key, req.session.userId, req.session.username, size);
+      setFileOwner(key, req.session.userId, req.session.username, size, info.mimeType);
       addUsage(req.session.userId, size);
       logActivity({ userId: req.session.userId, username: req.session.username, action: 'upload', objectKey: key });
     });

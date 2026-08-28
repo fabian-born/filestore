@@ -6,7 +6,8 @@ import db from './db.js';
 const TIMELINE_ACTIONS = "action NOT IN ('view', 'download')";
 
 const insert = db.prepare(
-  'INSERT INTO activity (user_id, username, action, object_key, detail, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+  `INSERT INTO activity (user_id, username, action, object_key, detail, created_at, user_agent, bytes)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 );
 
 function toDto(row) {
@@ -21,8 +22,16 @@ function toDto(row) {
   };
 }
 
-export function logActivity({ userId = null, username = null, action, objectKey = null, detail = null }) {
-  insert.run(userId, username, action, objectKey, detail, new Date().toISOString());
+export function logActivity({
+  userId = null,
+  username = null,
+  action,
+  objectKey = null,
+  detail = null,
+  userAgent = null,
+  bytes = null,
+}) {
+  insert.run(userId, username, action, objectKey, detail, new Date().toISOString(), userAgent, bytes);
 }
 
 // userId omitted/undefined -> every user's activity (admin view).
@@ -76,6 +85,86 @@ export function listShareEmailInvites(objectKey) {
     success: r.action === 'share_email',
     createdAt: r.createdAt,
   }));
+}
+
+const ADMIN_AUDIT_ACTIONS = [
+  'settings_change',
+  'user_created',
+  'user_deleted',
+  'quota_change',
+  'password_reset',
+];
+
+// How many login attempts got rate-limited in the last 24h - a quick
+// brute-force-activity indicator for the security stats panel.
+export function countBlockedLogins24h() {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  return db
+    .prepare("SELECT COUNT(*) AS c FROM activity WHERE action = 'login_blocked' AND created_at > ?")
+    .get(since).c;
+}
+
+// Recent admin-configuration changes (settings, user management) - the
+// audit-trail gap that plain file activity doesn't cover.
+export function listAdminAudit(limit = 20) {
+  const placeholders = ADMIN_AUDIT_ACTIONS.map(() => '?').join(',');
+  const rows = db
+    .prepare(
+      `SELECT * FROM activity WHERE action IN (${placeholders}) ORDER BY id DESC LIMIT ?`
+    )
+    .all(...ADMIN_AUDIT_ACTIONS, limit);
+  return rows.map(toDto);
+}
+
+// How many attempts hit an already-expired share link, most recent first -
+// distinct from a normal 'download'/'view', which only ever fire for links
+// that were still valid at the time.
+export function countExpiredShareAccess24h() {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  return db
+    .prepare("SELECT COUNT(*) AS c FROM activity WHERE action = 'share_expired_access' AND created_at > ?")
+    .get(since).c;
+}
+
+// Daily login counts for the last `days` days, split by auth method - shows
+// local vs. OAuth adoption over time.
+export function loginTrendByDay(days = 14) {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const rows = db
+    .prepare(
+      `SELECT
+         substr(created_at, 1, 10) AS date,
+         SUM(CASE WHEN detail = 'local' THEN 1 ELSE 0 END) AS local,
+         SUM(CASE WHEN detail = 'oauth' THEN 1 ELSE 0 END) AS oauth
+       FROM activity
+       WHERE action = 'login' AND created_at > ?
+       GROUP BY date
+       ORDER BY date ASC`
+    )
+    .all(since);
+  return rows;
+}
+
+// Rough desktop/mobile/unknown split based on the user-agent captured at
+// login - "Mobi" is the token virtually every mobile browser UA includes.
+export function loginDeviceSplit() {
+  return db
+    .prepare(
+      `SELECT
+         SUM(CASE WHEN user_agent LIKE '%Mobi%' THEN 1 ELSE 0 END) AS mobile,
+         SUM(CASE WHEN user_agent IS NOT NULL AND user_agent NOT LIKE '%Mobi%' THEN 1 ELSE 0 END) AS desktop,
+         SUM(CASE WHEN user_agent IS NULL THEN 1 ELSE 0 END) AS unknown
+       FROM activity
+       WHERE action = 'login'`
+    )
+    .get();
+}
+
+// Total bytes actually transferred out via share-link downloads - the
+// externally-relevant "bandwidth" number, as opposed to bytes stored.
+export function shareBandwidthTotal() {
+  const row = db.prepare("SELECT SUM(bytes) AS total FROM activity WHERE action = 'download' AND bytes IS NOT NULL").get();
+  return row.total || 0;
 }
 
 // One row per file that's ever been viewed/downloaded via a share link, most

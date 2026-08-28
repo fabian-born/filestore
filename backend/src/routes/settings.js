@@ -154,6 +154,18 @@ router.put('/settings', requireAuth, async (req, res) => {
       minioSecretKey: minioSecretKey ? minioSecretKey : undefined,
       defaultQuotaGb: defaultQuotaGb !== undefined ? String(defaultQuotaGb) : undefined,
     });
+    // Only the admin-only fields are audit-worthy - a regular user changing
+    // their own language preference isn't a config change.
+    if (restrictedFieldSent) {
+      logActivity({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'settings_change',
+        detail: `general: ${Object.keys(req.body || {})
+          .filter((f) => f !== 'language')
+          .join(', ')}`,
+      });
+    }
     res.json(withoutSecret(settings, isAdmin(req)));
   } catch (err) {
     console.error(err);
@@ -252,6 +264,12 @@ router.put('/settings/oauth', requireLocalAdmin, async (req, res) => {
       oauthButtonLabel: oauthButtonLabel !== undefined ? oauthButtonLabel.trim() : undefined,
     });
     invalidateOidcConfig();
+    logActivity({
+      userId: req.session.userId,
+      username: req.session.username,
+      action: 'settings_change',
+      detail: `oauth: ${Object.keys(req.body || {}).join(', ')}`,
+    });
     res.json(withoutSecret(settings, isAdmin(req)));
   } catch (err) {
     console.error(err);
@@ -301,6 +319,14 @@ router.put('/settings/smtp', requireAdmin, (req, res) => {
       smtpFromAddress: smtpFromAddress !== undefined ? smtpFromAddress.trim() : undefined,
       smtpFromName: smtpFromName !== undefined ? smtpFromName.trim() : undefined,
       smtpSecure: smtpSecure !== undefined ? String(smtpSecure) : undefined,
+    });
+    logActivity({
+      userId: req.session.userId,
+      username: req.session.username,
+      action: 'settings_change',
+      detail: `smtp: ${Object.keys(req.body || {})
+        .filter((f) => f !== 'smtpPassword')
+        .join(', ')}`,
     });
     res.json(withoutSecret(settings, true));
   } catch (err) {

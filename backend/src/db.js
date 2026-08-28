@@ -63,6 +63,12 @@ const TABLES = {
       bytes_used INTEGER NOT NULL DEFAULT 0
     )
   `,
+  storage_snapshots: `
+    CREATE TABLE IF NOT EXISTS storage_snapshots (
+      date TEXT PRIMARY KEY,
+      total_bytes INTEGER NOT NULL
+    )
+  `,
 };
 
 // Columns added to a table after its initial release. CREATE TABLE IF NOT
@@ -85,6 +91,13 @@ const COLUMN_MIGRATIONS = [
     column: 'size',
     ddl: 'ALTER TABLE file_owners ADD COLUMN size INTEGER NOT NULL DEFAULT 0',
   },
+  {
+    table: 'file_owners',
+    column: 'content_type',
+    ddl: 'ALTER TABLE file_owners ADD COLUMN content_type TEXT',
+  },
+  { table: 'activity', column: 'user_agent', ddl: 'ALTER TABLE activity ADD COLUMN user_agent TEXT' },
+  { table: 'activity', column: 'bytes', ddl: 'ALTER TABLE activity ADD COLUMN bytes INTEGER' },
 ];
 
 const INDEXES = [

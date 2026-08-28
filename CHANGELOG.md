@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`).
 
+## [Unreleased]
+
+### Added
+- HTML email templates (German/English) for share-link invites, auto-selected
+  from the admin-configured UI language, with the share's QR code embedded
+  inline in the email.
+
 ## [2026.08.27] — First public release
 
 ### Added

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
+import QRCode from 'qrcode';
 import { getMinioClient } from '../minioClient.js';
 import db from '../db.js';
 import { basename, isValidEmail } from '../utils.js';
@@ -10,24 +11,10 @@ import { renderMessagePage, renderSharePage } from '../sharePage.js';
 import { isAdmin, isWithinAllowed } from '../permissions.js';
 import { logActivity, listShareEmailInvites } from '../activity.js';
 import { sendMail } from '../mailer.js';
+import { renderShareEmail } from '../emailTemplates.js';
 
 const router = Router();
 const MAX_SHARE_EMAIL_RECIPIENTS = 20;
-
-const SHARE_EMAIL_TEXT = {
-  de: {
-    subject: (fileName) => `Datei geteilt: ${fileName}`,
-    body: (username, fileName, url, expiresAt) =>
-      `${username} hat die Datei "${fileName}" mit dir geteilt:\n\n${url}\n` +
-      (expiresAt ? `\nDer Link läuft am ${new Date(expiresAt).toLocaleString('de-DE')} ab.` : ''),
-  },
-  en: {
-    subject: (fileName) => `File shared: ${fileName}`,
-    body: (username, fileName, url, expiresAt) =>
-      `${username} shared the file "${fileName}" with you:\n\n${url}\n` +
-      (expiresAt ? `\nThis link expires on ${new Date(expiresAt).toLocaleString('en-US')}.` : ''),
-  },
-};
 
 function buildShareUrl(req, token) {
   const domain = getSettings().shareDomain.trim().replace(/\/+$/, '');
@@ -226,8 +213,16 @@ router.post('/share/:token/email', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'INVALID_RECIPIENT' });
   }
 
-  const texts = SHARE_EMAIL_TEXT[settings.language] || SHARE_EMAIL_TEXT.de;
   const url = buildShareUrl(req, req.params.token);
+  const { subject, text, html } = renderShareEmail(settings.language, {
+    username: req.session.username,
+    fileName: row.file_name,
+    url,
+    expiresAt: row.expires_at,
+  });
+  // Same URL for every recipient, so the QR code is identical too - generate
+  // it once and reuse the buffer rather than per-recipient.
+  const qrCodeBuffer = await QRCode.toBuffer(url, { margin: 1, width: 360 });
   const senderSettings = {
     ...settings,
     // getSettings() stores this as the string 'true'/'false', not a real
@@ -235,15 +230,24 @@ router.post('/share/:token/email', requireAuth, async (req, res) => {
     // *any* non-empty string, so leaving it unconverted silently forces TLS
     // on regardless of what's configured.
     smtpSecure: settings.smtpSecure === 'true',
-    smtpFromName: `${req.session.username} via ${settings.smtpFromName || 'webtools'}`,
+    smtpFromName: `${req.session.username} via ${settings.smtpFromName || 'filestore'}`,
   };
 
   const results = await Promise.allSettled(
     cleaned.map((to) =>
       sendMail(senderSettings, {
         to,
-        subject: texts.subject(row.file_name),
-        text: texts.body(req.session.username, row.file_name, url, row.expires_at),
+        subject,
+        text,
+        html,
+        attachments: [
+          {
+            filename: 'qrcode.png',
+            content: qrCodeBuffer,
+            cid: 'shareqrcode',
+            contentDisposition: 'inline',
+          },
+        ],
       })
     )
   );

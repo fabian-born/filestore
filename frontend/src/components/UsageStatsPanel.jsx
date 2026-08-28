@@ -23,8 +23,6 @@ export default function UsageStatsPanel() {
 
   return (
     <div className="stats-section">
-      <h3>{t('stats.usage.title')}</h3>
-
       <div className="stats-summary">
         <div className="stats-summary-item">
           <span className="stats-summary-value">

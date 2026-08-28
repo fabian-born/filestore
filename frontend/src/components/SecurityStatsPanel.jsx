@@ -24,7 +24,6 @@ export default function SecurityStatsPanel() {
 
   return (
     <div className="stats-section">
-      <h3>{t('stats.security.title')}</h3>
       <div className="stats-summary">
         <div className="stats-summary-item">
           <span className="stats-summary-value">{data.blockedLogins24h}</span>

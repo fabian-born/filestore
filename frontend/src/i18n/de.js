@@ -176,6 +176,12 @@ export default {
   stats: {
     title: 'Statistik',
     empty: 'Noch keine Aufrufe oder Downloads vorhanden.',
+    tabs: {
+      files: 'Dateien',
+      storage: 'Speicher',
+      security: 'Sicherheit',
+      usage: 'Nutzung',
+    },
     columns: {
       file: 'Datei',
       views: 'Aufrufe',

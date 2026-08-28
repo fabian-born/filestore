@@ -176,6 +176,12 @@ export default {
   stats: {
     title: 'Statistics',
     empty: 'No views or downloads yet.',
+    tabs: {
+      files: 'Files',
+      storage: 'Storage',
+      security: 'Security',
+      usage: 'Usage',
+    },
     columns: {
       file: 'File',
       views: 'Views',

@@ -27,7 +27,7 @@ function StorageOverview({ t }) {
   const sorted = [...users].sort((a, b) => b.usedBytes - a.usedBytes);
 
   return (
-    <div className="storage-overview">
+    <div className="stats-section">
       <h3>{t('stats.storage.title')}</h3>
       <table className="users-table">
         <thead>
@@ -70,7 +70,7 @@ function StorageOverview({ t }) {
   );
 }
 
-export default function StatsPanel({ isAdmin }) {
+function FileStatsTable() {
   const { t, settings } = useSettings();
   const locale = LOCALES[settings.language] || LOCALES.de;
   const [files, setFiles] = useState([]);
@@ -85,47 +85,83 @@ export default function StatsPanel({ isAdmin }) {
       .finally(() => setLoading(false));
   }, [t]);
 
+  if (error) return <p className="alert">{error}</p>;
+  if (loading) return <p className="hint">{t('fileList.loading')}</p>;
+  if (files.length === 0) return <p className="hint">{t('stats.empty')}</p>;
+
+  return (
+    <table className="users-table file-stats-table">
+      <thead>
+        <tr>
+          <th>{t('stats.columns.file')}</th>
+          <th>{t('stats.columns.views')}</th>
+          <th>{t('stats.columns.downloads')}</th>
+          <th>{t('stats.columns.total')}</th>
+          <th>{t('stats.columns.lastActivity')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {files.map((f) => (
+          <tr key={f.objectKey}>
+            <td>{f.objectKey}</td>
+            <td>{f.views}</td>
+            <td>{f.downloads}</td>
+            <td>{f.views + f.downloads}</td>
+            <td>{new Date(f.lastAt).toLocaleString(locale)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export default function StatsPanel({ isAdmin }) {
+  const { t } = useSettings();
+  const [tab, setTab] = useState('files');
+
+  // Nothing else to show for a regular user - skip the tab bar entirely.
+  if (!isAdmin) {
+    return (
+      <div className="stats-panel">
+        <FileStatsTable />
+      </div>
+    );
+  }
+
   return (
     <div className="stats-panel">
-      {isAdmin && (
+      <div className="settings-tabs">
+        <button type="button" className={`settings-tab ${tab === 'files' ? 'active' : ''}`} onClick={() => setTab('files')}>
+          {t('stats.tabs.files')}
+        </button>
+        <button
+          type="button"
+          className={`settings-tab ${tab === 'storage' ? 'active' : ''}`}
+          onClick={() => setTab('storage')}
+        >
+          {t('stats.tabs.storage')}
+        </button>
+        <button
+          type="button"
+          className={`settings-tab ${tab === 'security' ? 'active' : ''}`}
+          onClick={() => setTab('security')}
+        >
+          {t('stats.tabs.security')}
+        </button>
+        <button type="button" className={`settings-tab ${tab === 'usage' ? 'active' : ''}`} onClick={() => setTab('usage')}>
+          {t('stats.tabs.usage')}
+        </button>
+      </div>
+
+      {tab === 'files' && <FileStatsTable />}
+      {tab === 'storage' && (
         <>
           <StorageOverview t={t} />
-          <SecurityStatsPanel />
-          <UsageStatsPanel />
           <CapacityStatsPanel />
         </>
       )}
-
-      {error && <p className="alert">{error}</p>}
-
-      {loading ? (
-        <p className="hint">{t('fileList.loading')}</p>
-      ) : files.length === 0 ? (
-        <p className="hint">{t('stats.empty')}</p>
-      ) : (
-        <table className="users-table file-stats-table">
-          <thead>
-            <tr>
-              <th>{t('stats.columns.file')}</th>
-              <th>{t('stats.columns.views')}</th>
-              <th>{t('stats.columns.downloads')}</th>
-              <th>{t('stats.columns.total')}</th>
-              <th>{t('stats.columns.lastActivity')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {files.map((f) => (
-              <tr key={f.objectKey}>
-                <td>{f.objectKey}</td>
-                <td>{f.views}</td>
-                <td>{f.downloads}</td>
-                <td>{f.views + f.downloads}</td>
-                <td>{new Date(f.lastAt).toLocaleString(locale)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {tab === 'security' && <SecurityStatsPanel />}
+      {tab === 'usage' && <UsageStatsPanel />}
     </div>
   );
 }

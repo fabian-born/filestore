@@ -84,6 +84,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.25rem;
+    align-items: start;
   }
   .gallery figure {
     margin: 0;
@@ -150,12 +151,24 @@
         <p>User management, SMTP settings with test-email, and a paginated activity log.</p>
       </div>
       <div class="feature">
+        <h3>Storage quotas</h3>
+        <p>A global default plus optional per-user override, enforced on upload with a live usage bar.</p>
+      </div>
+      <div class="feature">
+        <h3>Admin statistics</h3>
+        <p>Security/audit, usage behaviour and capacity dashboards, with a file-type breakdown pie chart.</p>
+      </div>
+      <div class="feature">
         <h3>Mobile-friendly</h3>
         <p>Collapsible action menus, an info popover for details, and icon-only controls.</p>
       </div>
       <div class="feature">
         <h3>Sortable & paginated</h3>
         <p>Sort by name, size or date; page through large listings 25/50/100/all at a time.</p>
+      </div>
+      <div class="feature">
+        <h3>Login protection</h3>
+        <p>Rate-limited login attempts, plus a Light/Dark/System theme switcher.</p>
       </div>
     </div>
   </section>
@@ -174,6 +187,10 @@
       <figure>
         <img src="screenshots/activity.png" alt="Activity log">
         <figcaption>Activity log</figcaption>
+      </figure>
+      <figure>
+        <img src="screenshots/statistics.png" alt="Admin statistics">
+        <figcaption>Admin statistics: storage, capacity and file-type breakdown</figcaption>
       </figure>
       <figure>
         <img src="screenshots/app-info.png" alt="Settings">

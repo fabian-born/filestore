@@ -297,6 +297,7 @@ export default {
   },
   quota: {
     usage: '{used} of {total} used',
+    usageUnlimited: '{used} (unlimited)',
     uploadPartial: 'Storage quota reached - some files were not uploaded.',
   },
   owner: {

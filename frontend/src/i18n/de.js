@@ -299,6 +299,7 @@ export default {
   },
   quota: {
     usage: '{used} von {total} belegt',
+    usageUnlimited: '{used} (unbegrenzt)',
     uploadPartial:
       'Speicherkontingent erreicht - einige Dateien wurden nicht hochgeladen.',
   },

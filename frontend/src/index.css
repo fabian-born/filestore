@@ -273,6 +273,13 @@ button:disabled {
   background: var(--danger);
 }
 
+/* No quota at all (admins) - full but muted, since there's no ceiling to
+   show progress against. */
+.quota-bar-fill.unlimited {
+  background: var(--text-muted);
+  opacity: 0.35;
+}
+
 .quota-label {
   font-size: 0.8rem;
   color: var(--text-muted);

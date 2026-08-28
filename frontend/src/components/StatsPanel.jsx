@@ -44,18 +44,19 @@ function StorageOverview({ t }) {
                   {u.isAdmin && <span className="badge">{t('users.admin')}</span>}
                 </td>
                 <td>
-                  {u.quotaBytes ? (
-                    <span className="quota-footer">
-                      <span className="quota-bar">
-                        <span className={`quota-bar-fill ${level}`} style={{ width: `${percent}%` }} />
-                      </span>
-                      <span className="quota-label">
-                        {t('quota.usage', { used: formatBytes(u.usedBytes), total: formatBytes(u.quotaBytes) })}
-                      </span>
+                  <span className="quota-footer">
+                    <span className="quota-bar">
+                      <span
+                        className={`quota-bar-fill ${u.quotaBytes ? level : 'unlimited'}`}
+                        style={{ width: u.quotaBytes ? `${percent}%` : '100%' }}
+                      />
                     </span>
-                  ) : (
-                    formatBytes(u.usedBytes)
-                  )}
+                    <span className="quota-label">
+                      {u.quotaBytes
+                        ? t('quota.usage', { used: formatBytes(u.usedBytes), total: formatBytes(u.quotaBytes) })
+                        : t('quota.usageUnlimited', { used: formatBytes(u.usedBytes) })}
+                    </span>
+                  </span>
                 </td>
               </tr>
             );

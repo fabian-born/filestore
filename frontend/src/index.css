@@ -238,14 +238,11 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
 }
 
 .quota-bar {
-  flex: 1 1 auto;
-  max-width: 220px;
+  width: 120px;
+  flex: 0 0 auto;
   height: 6px;
   border-radius: 999px;
   background: var(--border);
@@ -647,12 +644,20 @@ tr:last-child td {
   color: var(--text-muted);
 }
 
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
 .pagination {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 0.75rem;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
@@ -975,7 +980,7 @@ tr:last-child td {
   }
 
   .quota-bar {
-    max-width: none;
+    width: 90px;
   }
 
   .app-header h1 {

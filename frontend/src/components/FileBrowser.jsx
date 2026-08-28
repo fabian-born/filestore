@@ -388,15 +388,17 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
         onSort={handleSort}
       />
 
-      <Pagination
-        page={page}
-        pageSize={pageSize}
-        total={isSearching ? searchResults?.total || 0 : total}
-        onPageChange={setPage}
-        onPageSizeChange={setPageSize}
-      />
+      <div className="pagination-row">
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={isSearching ? searchResults?.total || 0 : total}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
 
-      <QuotaFooter refreshKey={total} />
+        <QuotaFooter refreshKey={total} />
+      </div>
 
       {showNewFolder && (
         <NewFolderModal onCreate={handleCreateFolder} onClose={() => setShowNewFolder(false)} />

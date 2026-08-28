@@ -2,15 +2,9 @@ import { useState } from 'react';
 import { ShareIcon, DeleteIcon, MoveIcon, RenameIcon, InfoIcon, MenuIcon } from './icons.jsx';
 import Popover from './Popover.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
+import { formatBytes } from '../format.js';
 
 const LOCALES = { de: 'de-DE', en: 'en-US' };
-
-function formatBytes(bytes) {
-  if (!bytes) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
-}
 
 function MenuItem({ icon, label, className = '', onClick }) {
   return (

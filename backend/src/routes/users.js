@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAdmin } from '../auth.js';
-import { listUsers, createUser, deleteUser, findById, countAdmins, updatePassword } from '../users.js';
+import { listUsers, createUser, deleteUser, findById, countAdmins, updatePassword, updateUserQuota } from '../users.js';
 import { sanitizeSegment } from '../utils.js';
 import { getMinioClient } from '../minioClient.js';
 import { getSettings } from '../settings.js';
@@ -53,6 +53,19 @@ router.put('/users/:id/password', requireAdmin, (req, res) => {
 
   updatePassword(user.id, password);
   res.json({ ok: true });
+});
+
+router.put('/users/:id/quota', requireAdmin, (req, res) => {
+  const { quotaGb } = req.body || {};
+  if (quotaGb !== null && (typeof quotaGb !== 'number' || quotaGb < 0)) {
+    return res.status(400).json({ error: 'INVALID_QUOTA' });
+  }
+
+  const user = findById(Number(req.params.id));
+  if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
+
+  const updated = updateUserQuota(user.id, quotaGb);
+  res.json({ id: updated.id, quotaGb: updated.quota_gb ?? null });
 });
 
 router.delete('/users/:id', requireAdmin, (req, res) => {

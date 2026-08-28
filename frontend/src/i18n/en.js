@@ -215,6 +215,10 @@ export default {
     resetPasswordFor: 'New password for "{username}"',
     reset: 'Reset',
     resetting: 'Resetting...',
+    quotaGb: 'Quota (GB)',
+    quotaDefault: 'Default',
+    unlimited: 'Unlimited',
+    invalidQuota: 'Invalid storage quota',
   },
   settings: {
     title: 'Settings',
@@ -234,6 +238,9 @@ export default {
       'Domain used for generated share links. Leave empty to use the current address.',
     shareDomainReadOnlyHint: 'Managed by the administrator.',
     language: 'Language',
+    defaultQuotaGb: 'Default storage quota (GB)',
+    defaultQuotaGbHint:
+      '0 = unlimited. Applies to every user without an individual quota (see User management). Admins are always unlimited.',
     minioUrl: 'Bucket URL',
     minioUrlHint: 'Address of the MinIO server, e.g. https://minio.example.com:9000.',
     minioAccessKey: 'Access key',
@@ -275,6 +282,10 @@ export default {
   appInfo: {
     frontend: 'Frontend version',
     backend: 'Backend version',
+  },
+  quota: {
+    usage: '{used} of {total} used',
+    uploadPartial: 'Storage quota reached - some files were not uploaded.',
   },
   errors: {
     NOT_AUTHENTICATED: 'Not signed in',
@@ -347,6 +358,8 @@ export default {
     OAUTH_LOGIN_FAILED: 'Sign-in via the identity provider failed',
     OAUTH_PROVISIONING_FAILED: 'Failed to auto-create the user account',
     LOCAL_ADMIN_REQUIRED: 'You need to be signed in locally as an admin to do this',
+    QUOTA_EXCEEDED: 'Storage quota reached - upload not possible',
+    INVALID_QUOTA: 'Invalid storage quota',
     GENERIC: 'Something went wrong',
   },
 };

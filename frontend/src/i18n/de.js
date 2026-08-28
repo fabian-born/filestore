@@ -217,6 +217,10 @@ export default {
     resetPasswordFor: 'Neues Passwort für „{username}“',
     reset: 'Zurücksetzen',
     resetting: 'Setze zurück...',
+    quotaGb: 'Kontingent (GB)',
+    quotaDefault: 'Standard',
+    unlimited: 'Unbegrenzt',
+    invalidQuota: 'Ungültiges Speicherkontingent',
   },
   settings: {
     title: 'Einstellungen',
@@ -236,6 +240,9 @@ export default {
       'Domain, die für generierte Freigabelinks verwendet wird. Leer lassen, um die aktuelle Adresse zu verwenden.',
     shareDomainReadOnlyHint: 'Wird vom Administrator verwaltet.',
     language: 'Sprache',
+    defaultQuotaGb: 'Standard-Speicherkontingent (GB)',
+    defaultQuotaGbHint:
+      '0 = unbegrenzt. Gilt für alle Nutzer ohne individuelles Kontingent (siehe Benutzerverwaltung). Administratoren sind immer unbegrenzt.',
     minioUrl: 'Bucket-URL',
     minioUrlHint: 'Adresse des MinIO-Servers, z. B. https://minio.example.com:9000.',
     minioAccessKey: 'Access Key',
@@ -277,6 +284,11 @@ export default {
   appInfo: {
     frontend: 'Frontend-Version',
     backend: 'Backend-Version',
+  },
+  quota: {
+    usage: '{used} von {total} belegt',
+    uploadPartial:
+      'Speicherkontingent erreicht - einige Dateien wurden nicht hochgeladen.',
   },
   errors: {
     NOT_AUTHENTICATED: 'Nicht angemeldet',
@@ -349,6 +361,8 @@ export default {
     OAUTH_LOGIN_FAILED: 'Die Anmeldung über den Identity-Provider ist fehlgeschlagen',
     OAUTH_PROVISIONING_FAILED: 'Benutzerkonto konnte nicht automatisch angelegt werden',
     LOCAL_ADMIN_REQUIRED: 'Dazu musst du lokal als Administrator angemeldet sein',
+    QUOTA_EXCEEDED: 'Speicherkontingent erreicht - Upload nicht möglich',
+    INVALID_QUOTA: 'Ungültiges Speicherkontingent',
     GENERIC: 'Ein Fehler ist aufgetreten',
   },
 };

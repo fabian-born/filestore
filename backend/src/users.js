@@ -29,6 +29,7 @@ function toDto(row) {
     firstName: row.first_name || '',
     lastName: row.last_name || '',
     email: row.email || '',
+    quotaGb: row.quota_gb ?? null,
   };
 }
 
@@ -126,6 +127,13 @@ export function createUser(username, password, isAdmin) {
 
 export function updatePassword(id, password) {
   db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), id);
+}
+
+// null clears the override (falls back to the global default). 0 is a
+// distinct, deliberate "unlimited for this one user" - see quota.js.
+export function updateUserQuota(id, quotaGb) {
+  db.prepare('UPDATE users SET quota_gb = ? WHERE id = ?').run(quotaGb, id);
+  return findById(id);
 }
 
 export function deleteUser(id) {

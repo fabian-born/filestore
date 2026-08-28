@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import Busboy from 'busboy';
+import { Transform } from 'node:stream';
 import { getMinioClient } from '../minioClient.js';
 import db from '../db.js';
 import { getSettings } from '../settings.js';
@@ -7,6 +8,8 @@ import { normalizePrefix, sanitizeSegment, basename, parsePaging, parseSort, sor
 import { listAllKeys, statExists } from '../objectOps.js';
 import { logActivity } from '../activity.js';
 import { setFileOwner, renameFileOwner, deleteFileOwners, getFileOwners } from '../fileOwners.js';
+import { effectiveQuotaBytes, getUsage, addUsage } from '../quota.js';
+import { findById } from '../users.js';
 import {
   isAdmin,
   isWithinAllowed,
@@ -43,6 +46,19 @@ function markOwner(files) {
     const owner = owners.get(f.key);
     if (owner) f.owner = owner.ownerUsername;
   });
+}
+
+// Frees up whatever quota usage the deleted keys were counted against,
+// grouped by owner since a folder can contain files from more than one
+// owner. Must run before deleteFileOwners() - it needs those rows' sizes.
+function freeUsageForKeys(keys) {
+  const owners = getFileOwners(keys);
+  const byOwner = new Map();
+  for (const { ownerId, size } of owners.values()) {
+    if (!ownerId) continue;
+    byOwner.set(ownerId, (byOwner.get(ownerId) || 0) + (size || 0));
+  }
+  byOwner.forEach((total, ownerId) => addUsage(ownerId, -total));
 }
 
 // Flags a listed user home folder whose account has since been deleted, so
@@ -206,6 +222,50 @@ async function resolveUniqueName(client, bucket, prefix, name, claimed) {
   return candidate;
 }
 
+// Streams straight into putObject while counting bytes as they pass through,
+// so a quota can be enforced *during* the upload (aborting once the running
+// total would exceed it) rather than only after the fact - a single huge
+// file can't blow far past the limit before anyone notices. quotaCheck is
+// null when the uploader has no quota (admins, or quota disabled).
+function putObjectWithQuota(minioClient, bucket, key, fileStream, contentType, quotaCheck) {
+  return new Promise((resolve, reject) => {
+    let bytesRead = 0;
+    let settled = false;
+    const fail = (err) => {
+      if (settled) return;
+      settled = true;
+      fileStream.destroy();
+      reject(err);
+    };
+
+    const limiter = new Transform({
+      transform(chunk, enc, callback) {
+        bytesRead += chunk.length;
+        if (quotaCheck && !quotaCheck(bytesRead)) {
+          const err = new Error('QUOTA_EXCEEDED');
+          err.code = 'QUOTA_EXCEEDED';
+          callback(err);
+          return;
+        }
+        callback(null, chunk);
+      },
+    });
+
+    fileStream.on('error', fail);
+    limiter.on('error', fail);
+    const limited = fileStream.pipe(limiter);
+
+    minioClient
+      .putObject(bucket, key, limited, undefined, { 'Content-Type': contentType })
+      .then(() => {
+        if (settled) return;
+        settled = true;
+        resolve(bytesRead);
+      })
+      .catch(fail);
+  });
+}
+
 router.post('/upload', (req, res) => {
   const prefix = normalizePrefix(req.query.prefix || '');
   if (!isAdmin(req) && !isWithinAllowed(req, prefix)) {
@@ -216,7 +276,13 @@ router.post('/upload', (req, res) => {
   const bb = Busboy({ headers: req.headers });
   const claimed = new Set();
   const renamed = [];
-  const uploadedKeys = [];
+
+  const user = findById(req.session.userId);
+  const quotaBytes = effectiveQuotaBytes(user, getSettings());
+  let usedSoFar = getUsage(req.session.userId);
+  let quotaExceeded = false;
+  let uploadedCount = 0;
+
   // Files are written one at a time (chained, not Promise.all) so that name
   // resolution above can't race between two files sharing an original name.
   let chain = Promise.resolve();
@@ -229,12 +295,43 @@ router.post('/upload', (req, res) => {
       return;
     }
     chain = chain.then(async () => {
+      if (quotaExceeded) {
+        fileStream.resume();
+        return;
+      }
+      if (quotaBytes !== null && usedSoFar >= quotaBytes) {
+        quotaExceeded = true;
+        fileStream.resume();
+        return;
+      }
+
       const finalName = await resolveUniqueName(minioClient, bucket, prefix, safeName, claimed);
       if (finalName !== safeName) renamed.push({ original: safeName, saved: finalName });
-      await minioClient.putObject(bucket, `${prefix}${finalName}`, fileStream, undefined, {
-        'Content-Type': info.mimeType,
-      });
-      uploadedKeys.push(`${prefix}${finalName}`);
+      const key = `${prefix}${finalName}`;
+
+      let size;
+      try {
+        size = await putObjectWithQuota(
+          minioClient,
+          bucket,
+          key,
+          fileStream,
+          info.mimeType,
+          quotaBytes === null ? null : (bytesSoFar) => usedSoFar + bytesSoFar <= quotaBytes
+        );
+      } catch (err) {
+        if (err.code === 'QUOTA_EXCEEDED') {
+          quotaExceeded = true;
+          return;
+        }
+        throw err;
+      }
+
+      usedSoFar += size;
+      uploadedCount += 1;
+      setFileOwner(key, req.session.userId, req.session.username, size);
+      addUsage(req.session.userId, size);
+      logActivity({ userId: req.session.userId, username: req.session.username, action: 'upload', objectKey: key });
     });
   });
 
@@ -249,13 +346,13 @@ router.post('/upload', (req, res) => {
   bb.on('finish', async () => {
     try {
       await chain;
-      uploadedKeys.forEach((key) => {
-        logActivity({ userId: req.session.userId, username: req.session.username, action: 'upload', objectKey: key });
-        setFileOwner(key, req.session.userId, req.session.username);
-      });
       if (!responded) {
         responded = true;
-        res.status(201).json({ ok: true, renamed });
+        if (quotaExceeded && uploadedCount === 0) {
+          res.status(413).json({ error: 'QUOTA_EXCEEDED' });
+        } else {
+          res.status(201).json({ ok: true, renamed, quotaExceeded });
+        }
       }
     } catch (err) {
       if (!responded) {
@@ -318,11 +415,13 @@ router.delete('/objects', async (req, res) => {
         db.prepare(
           `DELETE FROM shares WHERE object_key IN (${keys.map(() => '?').join(',')})`
         ).run(...keys);
+        freeUsageForKeys(keys);
         deleteFileOwners(keys);
       }
     } else {
       await minioClient.removeObject(bucket, key);
       db.prepare('DELETE FROM shares WHERE object_key = ?').run(key);
+      freeUsageForKeys([key]);
       deleteFileOwners([key]);
     }
 
@@ -416,6 +515,15 @@ router.post('/rename', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'RENAME_FAILED' });
   }
+});
+
+// Lets the current user see their own storage usage (e.g. for a progress
+// bar) without exposing anyone else's - admins have no quota, so this
+// always reports unlimited for them.
+router.get('/quota/me', (req, res) => {
+  const user = findById(req.session.userId);
+  const quotaBytes = effectiveQuotaBytes(user, getSettings());
+  res.json({ usedBytes: getUsage(req.session.userId), quotaBytes });
 });
 
 export default router;

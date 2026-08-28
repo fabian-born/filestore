@@ -24,6 +24,7 @@ const DEFAULTS = {
   smtpFromAddress: '',
   smtpFromName: '',
   smtpSecure: 'false',
+  defaultQuotaGb: '0',
 };
 
 const KEYS = {
@@ -46,6 +47,7 @@ const KEYS = {
   smtpFromAddress: 'smtp_from_address',
   smtpFromName: 'smtp_from_name',
   smtpSecure: 'smtp_secure',
+  defaultQuotaGb: 'default_quota_gb',
 };
 
 const FIELDS = Object.keys(KEYS);

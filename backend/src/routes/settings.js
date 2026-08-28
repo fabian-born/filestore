@@ -32,6 +32,7 @@ function withoutSecret(settings, admin) {
     smtpFromAddress,
     smtpFromName,
     smtpSecure,
+    defaultQuotaGb,
     ...rest
   } = settings;
   const result = {
@@ -55,6 +56,7 @@ function withoutSecret(settings, admin) {
     result.smtpFromName = smtpFromName;
     result.smtpSecure = smtpSecure === 'true';
     result.smtpPasswordSet = Boolean(smtpPassword);
+    result.defaultQuotaGb = Number(defaultQuotaGb) || 0;
   }
   return result;
 }
@@ -76,12 +78,16 @@ router.get('/settings', (req, res) => {
 });
 
 router.put('/settings', requireAuth, async (req, res) => {
-  const { shareDomain, language, bucket, minioUrl, minioAccessKey, minioSecretKey } = req.body || {};
+  const { shareDomain, language, bucket, minioUrl, minioAccessKey, minioSecretKey, defaultQuotaGb } =
+    req.body || {};
 
-  // Bucket/MinIO connection and the share domain are infrastructure-level
-  // settings - only admins may change them. Language stays open to everyone.
+  // Bucket/MinIO connection, the share domain and the default quota are
+  // infrastructure-level settings - only admins may change them. Language
+  // stays open to everyone.
   const restrictedFieldSent =
-    shareDomain !== undefined || BUCKET_FIELDS.some((f) => req.body?.[f] !== undefined);
+    shareDomain !== undefined ||
+    defaultQuotaGb !== undefined ||
+    BUCKET_FIELDS.some((f) => req.body?.[f] !== undefined);
   if (!isAdmin(req) && restrictedFieldSent) {
     return res.status(403).json({ error: 'FORBIDDEN' });
   }
@@ -91,6 +97,9 @@ router.put('/settings', requireAuth, async (req, res) => {
   }
   if (shareDomain !== undefined && typeof shareDomain !== 'string') {
     return res.status(400).json({ error: 'INVALID_SHARE_DOMAIN' });
+  }
+  if (defaultQuotaGb !== undefined && (typeof defaultQuotaGb !== 'number' || defaultQuotaGb < 0)) {
+    return res.status(400).json({ error: 'INVALID_QUOTA' });
   }
   if (bucket !== undefined && (typeof bucket !== 'string' || !bucket.trim())) {
     return res.status(400).json({ error: 'INVALID_BUCKET' });
@@ -143,6 +152,7 @@ router.put('/settings', requireAuth, async (req, res) => {
       minioUrl: trimmedMinioUrl,
       minioAccessKey: trimmedAccessKey,
       minioSecretKey: minioSecretKey ? minioSecretKey : undefined,
+      defaultQuotaGb: defaultQuotaGb !== undefined ? String(defaultQuotaGb) : undefined,
     });
     res.json(withoutSecret(settings, isAdmin(req)));
   } catch (err) {

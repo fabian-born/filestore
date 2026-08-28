@@ -10,6 +10,7 @@ export default function SettingsModal({ onClose, user }) {
 
   const [shareDomain, setShareDomain] = useState(settings.shareDomain || '');
   const [language, setLanguage] = useState(settings.language || 'de');
+  const [defaultQuotaGb, setDefaultQuotaGb] = useState(String(settings.defaultQuotaGb ?? 0));
 
   const [bucket, setBucket] = useState(settings.bucket || '');
   const [minioUrl, setMinioUrl] = useState(settings.minioUrl || '');
@@ -82,6 +83,7 @@ export default function SettingsModal({ onClose, user }) {
           minioUrl: user?.isAdmin ? minioUrl.trim() : undefined,
           minioAccessKey: user?.isAdmin ? minioAccessKey.trim() : undefined,
           minioSecretKey: user?.isAdmin ? minioSecretKey : undefined,
+          defaultQuotaGb: user?.isAdmin ? Number(defaultQuotaGb) || 0 : undefined,
         });
       }
       onClose();
@@ -222,6 +224,23 @@ export default function SettingsModal({ onClose, user }) {
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
               </select>
+
+              {user?.isAdmin && (
+                <>
+                  <label className="field-label" htmlFor="settings-default-quota">
+                    {t('settings.defaultQuotaGb')}
+                  </label>
+                  <input
+                    id="settings-default-quota"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={defaultQuotaGb}
+                    onChange={(e) => setDefaultQuotaGb(e.target.value)}
+                  />
+                  <p className="hint">{t('settings.defaultQuotaGbHint')}</p>
+                </>
+              )}
             </>
           )}
 

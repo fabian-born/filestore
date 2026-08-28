@@ -229,6 +229,49 @@ button:disabled {
   margin: 0;
 }
 
+.notice.warn {
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+  border-color: var(--warn);
+}
+
+.quota-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.quota-bar {
+  flex: 1 1 auto;
+  max-width: 220px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.quota-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.quota-bar-fill.warn {
+  background: var(--warn);
+}
+
+.quota-bar-fill.full {
+  background: var(--danger);
+}
+
+.quota-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .file-list {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -543,6 +586,22 @@ tr:last-child td {
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.quota-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.quota-edit-input {
+  width: 6rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
 }
 
 .badge {
@@ -913,6 +972,10 @@ tr:last-child td {
 @media (max-width: 640px) {
   .app {
     padding: 1.25rem 1rem 3rem;
+  }
+
+  .quota-bar {
+    max-width: none;
   }
 
   .app-header h1 {

@@ -18,6 +18,9 @@ export default function UsersPanel({ currentUserId }) {
   const [resetPassword, setResetPassword] = useState('');
   const [resetting, setResetting] = useState(false);
 
+  const [quotaEdits, setQuotaEdits] = useState({});
+  const [quotaSaving, setQuotaSaving] = useState(null);
+
   const load = useCallback(() => {
     setLoading(true);
     return api
@@ -63,6 +66,30 @@ export default function UsersPanel({ currentUserId }) {
     }
   };
 
+  const handleSaveQuota = async (u) => {
+    const raw = quotaEdits[u.id];
+    const quotaGb = raw === '' || raw === undefined ? null : Number(raw);
+    if (quotaGb !== null && (Number.isNaN(quotaGb) || quotaGb < 0)) {
+      setError(t('users.invalidQuota'));
+      return;
+    }
+    setQuotaSaving(u.id);
+    setError(null);
+    try {
+      await api.updateUserQuota(u.id, quotaGb);
+      await load();
+      setQuotaEdits((prev) => {
+        const next = { ...prev };
+        delete next[u.id];
+        return next;
+      });
+    } catch (err) {
+      setError(t(`errors.${err.code}`));
+    } finally {
+      setQuotaSaving(null);
+    }
+  };
+
   const handleReset = async (e) => {
     e.preventDefault();
     if (!resetTarget) return;
@@ -95,6 +122,7 @@ export default function UsersPanel({ currentUserId }) {
             <tr>
               <th>{t('users.username')}</th>
               <th>{t('users.role')}</th>
+              <th>{t('users.quotaGb')}</th>
               <th></th>
             </tr>
           </thead>
@@ -106,6 +134,31 @@ export default function UsersPanel({ currentUserId }) {
                   {u.id === currentUserId && <span className="badge">{t('users.you')}</span>}
                 </td>
                 <td>{u.isAdmin ? t('users.admin') : t('users.member')}</td>
+                <td>
+                  {u.isAdmin ? (
+                    <span className="hint">{t('users.unlimited')}</span>
+                  ) : (
+                    <span className="quota-edit">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        className="quota-edit-input"
+                        placeholder={t('users.quotaDefault')}
+                        value={quotaEdits[u.id] ?? (u.quotaGb ?? '')}
+                        onChange={(e) => setQuotaEdits((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                      />
+                      <button
+                        type="button"
+                        className="link"
+                        disabled={quotaSaving === u.id}
+                        onClick={() => handleSaveQuota(u)}
+                      >
+                        {quotaSaving === u.id ? t('common.saving') : t('common.save')}
+                      </button>
+                    </span>
+                  )}
+                </td>
                 <td className="users-row-actions">
                   <button
                     type="button"

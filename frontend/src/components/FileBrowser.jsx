@@ -12,6 +12,7 @@ import ProfileModal from './ProfileModal.jsx';
 import MoveModal from './MoveModal.jsx';
 import Pagination from './Pagination.jsx';
 import { SettingsIcon, ProfileIcon, ActivityIcon, StatsIcon } from './icons.jsx';
+import QuotaFooter from './QuotaFooter.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
 import logo from '../assets/filestore_logo.png';
 
@@ -32,6 +33,7 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
   const [selected, setSelected] = useState(new Map());
   const [uploadProgress, setUploadProgress] = useState(null);
   const [renamedNotice, setRenamedNotice] = useState(null);
+  const [quotaNotice, setQuotaNotice] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -197,10 +199,12 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
     if (!canWrite || !fileList || !fileList.length) return;
     setUploadProgress(0);
     setRenamedNotice(null);
+    setQuotaNotice(false);
     try {
       const result = await api.uploadFiles(prefix, fileList, setUploadProgress);
       await refresh();
       if (result?.renamed?.length) setRenamedNotice(result.renamed);
+      if (result?.quotaExceeded) setQuotaNotice(true);
     } catch (err) {
       handleError(err);
     } finally {
@@ -341,6 +345,15 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
         </div>
       )}
 
+      {quotaNotice && (
+        <div className="notice warn">
+          <p>{t('quota.uploadPartial')}</p>
+          <button type="button" className="link" onClick={() => setQuotaNotice(false)}>
+            {t('common.close')}
+          </button>
+        </div>
+      )}
+
       {selected.size > 0 && (
         <div className="selection-bar">
           <span>{t('selection.count', { count: selected.size })}</span>
@@ -382,6 +395,8 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
       />
+
+      <QuotaFooter refreshKey={total} />
 
       {showNewFolder && (
         <NewFolderModal onCreate={handleCreateFolder} onClose={() => setShowNewFolder(false)} />

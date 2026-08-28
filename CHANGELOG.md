@@ -10,6 +10,16 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
 - HTML email templates (German/English) for share-link invites, auto-selected
   from the admin-configured UI language, with the share's QR code embedded
   inline in the email.
+- Per-user storage quotas: a global default (admin-configurable, in GB, 0 =
+  unlimited) plus an optional per-user override; admins are always
+  unlimited. Enforced during upload (aborting mid-stream rather than only
+  after the fact), with usage tracked incrementally on upload/delete and a
+  usage progress bar shown to each user for their own quota.
+
+### Fixed
+- Housekeeping: pinned `node`/`nginx` base images to digests, added
+  container healthchecks (catching a `localhost` vs `127.0.0.1` resolution
+  bug along the way), and moved stray local DB backups into `backups/`.
 
 ## [2026.08.27] — First public release
 

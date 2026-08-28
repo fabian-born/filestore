@@ -57,6 +57,12 @@ const TABLES = {
       created_at TEXT NOT NULL
     )
   `,
+  user_storage: `
+    CREATE TABLE IF NOT EXISTS user_storage (
+      user_id INTEGER PRIMARY KEY,
+      bytes_used INTEGER NOT NULL DEFAULT 0
+    )
+  `,
 };
 
 // Columns added to a table after its initial release. CREATE TABLE IF NOT
@@ -72,6 +78,12 @@ const COLUMN_MIGRATIONS = [
     table: 'shares',
     column: 'preview_enabled',
     ddl: 'ALTER TABLE shares ADD COLUMN preview_enabled INTEGER NOT NULL DEFAULT 0',
+  },
+  { table: 'users', column: 'quota_gb', ddl: 'ALTER TABLE users ADD COLUMN quota_gb REAL' },
+  {
+    table: 'file_owners',
+    column: 'size',
+    ddl: 'ALTER TABLE file_owners ADD COLUMN size INTEGER NOT NULL DEFAULT 0',
   },
 ];
 

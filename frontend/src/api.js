@@ -142,9 +142,9 @@ export function uploadFiles(prefix, files, onProgress) {
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
     };
-    const uploadError = () => {
-      const err = new Error('UPLOAD_FAILED');
-      err.code = 'UPLOAD_FAILED';
+    const uploadError = (code) => {
+      const err = new Error(code || 'UPLOAD_FAILED');
+      err.code = code || 'UPLOAD_FAILED';
       return err;
     };
     xhr.onload = () => {
@@ -155,7 +155,13 @@ export function uploadFiles(prefix, files, onProgress) {
           resolve({});
         }
       } else {
-        reject(uploadError());
+        let code;
+        try {
+          code = JSON.parse(xhr.responseText).error;
+        } catch {
+          // ignore - falls back to the generic code below
+        }
+        reject(uploadError(code));
       }
     };
     xhr.onerror = () => reject(uploadError());
@@ -243,6 +249,18 @@ export function updateSmtpSettings(partial) {
 
 export function getVersion() {
   return request('/version');
+}
+
+export function getMyQuota() {
+  return request('/quota/me');
+}
+
+export function updateUserQuota(id, quotaGb) {
+  return request(`/users/${id}/quota`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quotaGb }),
+  });
 }
 
 export function testSmtpSettings(partial) {

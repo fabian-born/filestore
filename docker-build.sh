@@ -32,13 +32,13 @@ export APP_VERSION
 echo "Building version $APP_VERSION"
 docker compose build
 
-for image in webtools-backend webtools-frontend; do
+for image in filestore-backend filestore-frontend; do
   docker tag "$REGISTRY/$image:$APP_VERSION" "$REGISTRY/$image:latest"
 done
 
-for image in webtools-backend webtools-frontend; do
+for image in filestore-backend filestore-frontend; do
   docker push "$REGISTRY/$image:$APP_VERSION"
   docker push "$REGISTRY/$image:latest"
 done
 
-echo "Pushed $REGISTRY/webtools-backend and webtools-frontend as $APP_VERSION and latest"
+echo "Pushed $REGISTRY/filestore-backend and filestore-frontend as $APP_VERSION and latest"

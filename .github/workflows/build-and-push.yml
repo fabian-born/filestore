@@ -29,7 +29,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # The webtools-backend/webtools-frontend packages predate this repo
+      # The filestore-backend/filestore-frontend packages predate this repo
       # (pushed manually via docker-build.sh) and aren't linked to it, so the
       # default GITHUB_TOKEN can't write to them - a PAT that authenticates
       # as the account that owns the packages is needed instead.

@@ -19,7 +19,7 @@ services:
       - demo-minio-data:/data
 
   webtools-fileexplorer-backend:
-    image: ghcr.io/fabian-born/webtools-backend:${APP_VERSION:-latest}
+    image: ghcr.io/fabian-born/filestore-backend:${APP_VERSION:-latest}
     restart: unless-stopped
     networks:
       - filestore-demo
@@ -44,7 +44,7 @@ services:
       - "3452"
 
   frontend:
-    image: ghcr.io/fabian-born/webtools-frontend:${APP_VERSION:-latest}
+    image: ghcr.io/fabian-born/filestore-frontend:${APP_VERSION:-latest}
     restart: unless-stopped
     networks:
       - filestore-demo

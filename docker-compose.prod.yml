@@ -1,6 +1,6 @@
 services:
   webtools-fileexplorer-backend:
-    image: ${REGISTRY:-ghcr.io/fabian-born}/webtools-backend:latest
+    image: ${REGISTRY:-ghcr.io/fabian-born}/filestore-backend:latest
     restart: unless-stopped
     environment:
       PORT: 3452
@@ -15,7 +15,7 @@ services:
       - "3452"
 
   frontend:
-    image: ${REGISTRY:-ghcr.io/fabian-born}/webtools-frontend:latest
+    image: ${REGISTRY:-ghcr.io/fabian-born}/filestore-frontend:latest
     restart: unless-stopped
     depends_on:
       - webtools-fileexplorer-backend

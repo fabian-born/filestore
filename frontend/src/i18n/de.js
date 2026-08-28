@@ -302,6 +302,7 @@ export default {
   errors: {
     NOT_AUTHENTICATED: 'Nicht angemeldet',
     INVALID_CREDENTIALS: 'Ungültiger Benutzername oder Passwort',
+    TOO_MANY_LOGIN_ATTEMPTS: 'Zu viele fehlgeschlagene Anmeldeversuche. Bitte später erneut versuchen.',
     MISSING_KEY: 'Fehlender Schlüssel',
     MISSING_PREFIX: 'Fehlender Pfad',
     INVALID_FOLDER_NAME: 'Ungültiger Ordnername',

@@ -1,10 +1,24 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { verifyLogin, findById } from '../users.js';
 import { logActivity } from '../activity.js';
 
 const router = Router();
 
-router.post('/login', (req, res) => {
+// Only failed attempts count against the limit (skipSuccessfulRequests), so
+// someone who mistypes their password a couple of times then gets it right
+// isn't locked out - this is throttling brute-force guessing, not punishing
+// typos.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  handler: (req, res) => res.status(429).json({ error: 'TOO_MANY_LOGIN_ATTEMPTS' }),
+});
+
+router.post('/login', loginLimiter, (req, res) => {
   const { username, password } = req.body || {};
   const user = verifyLogin(username, password);
 

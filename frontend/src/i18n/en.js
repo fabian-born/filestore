@@ -299,6 +299,7 @@ export default {
   errors: {
     NOT_AUTHENTICATED: 'Not signed in',
     INVALID_CREDENTIALS: 'Invalid username or password',
+    TOO_MANY_LOGIN_ATTEMPTS: 'Too many failed login attempts. Please try again later.',
     MISSING_KEY: 'Missing key',
     MISSING_PREFIX: 'Missing path',
     INVALID_FOLDER_NAME: 'Invalid folder name',

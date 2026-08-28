@@ -19,6 +19,10 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   for a whole folder, picking the new owner from the list of registered
   users. Quota usage moves with it (freed from the old owner, charged to
   the new one).
+- Rate limiting on login (10 failed attempts per 15 minutes per IP;
+  successful logins don't count against the limit).
+- `backup.sh` / `backend/scripts/backup-db.js` for online, non-disruptive
+  backups of `shares.db` with retention, plus systemd timer/cron examples.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

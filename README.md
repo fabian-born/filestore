@@ -73,6 +73,29 @@ SMTP and activity auditing.
 Data (the app's own SQLite database — sessions, shares, activity log, etc.)
 is persisted in `./data`, bind-mounted into the backend container.
 
+## Backups
+
+`./backup.sh` triggers an online backup of `shares.db` inside the running
+backend container (safe while the app is up — no need to stop anything) into
+`./data/backups/`, keeping the last 14 by default. It only backs up the
+app's own database, not the MinIO bucket itself — back that up separately
+with whatever tooling your MinIO deployment already uses.
+
+To run it daily, install the provided systemd units (adjust the path in
+`filestore-backup.service` first):
+
+```bash
+sudo cp filestore-backup.service filestore-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now filestore-backup.timer
+```
+
+Or with cron:
+
+```
+0 3 * * * /opt/filestore/backup.sh >> /var/log/filestore-backup.log 2>&1
+```
+
 ## Development
 
 ```bash

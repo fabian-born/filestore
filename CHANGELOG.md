@@ -27,6 +27,10 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   time), a one-click "reassign content" action right on an orphaned user
   folder, and an admin-only storage-usage overview across all users on the
   Stats page.
+- Theme switcher (System/Light/Dark) in Settings, defaulting to System
+  (i.e. unchanged from before) - a per-browser preference stored in
+  localStorage, applied before first paint to avoid a flash of the wrong
+  theme.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

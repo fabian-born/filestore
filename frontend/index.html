@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="./src/assets/filestore_logo.png" />
     <title>Dateiablage</title>
+    <script>
+      // Applied before the app mounts (and before first paint) so there's no
+      // flash of the wrong theme when the stored preference differs from
+      // the system default.
+      (function () {
+        try {
+          var theme = localStorage.getItem('filestore-theme');
+          if (theme === 'light' || theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+        } catch (e) {
+          // localStorage unavailable (private mode, etc.) - fall back to system.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

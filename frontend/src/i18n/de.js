@@ -248,6 +248,10 @@ export default {
       'Domain, die für generierte Freigabelinks verwendet wird. Leer lassen, um die aktuelle Adresse zu verwenden.',
     shareDomainReadOnlyHint: 'Wird vom Administrator verwaltet.',
     language: 'Sprache',
+    theme: 'Design',
+    themeSystem: 'Systemfarben',
+    themeLight: 'Hell',
+    themeDark: 'Dunkel',
     defaultQuotaGb: 'Standard-Speicherkontingent (GB)',
     defaultQuotaGbHint:
       '0 = unbegrenzt. Gilt für alle Nutzer ohne individuelles Kontingent (siehe Benutzerverwaltung). Administratoren sind immer unbegrenzt.',

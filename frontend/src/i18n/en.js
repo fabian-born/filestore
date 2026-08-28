@@ -246,6 +246,10 @@ export default {
       'Domain used for generated share links. Leave empty to use the current address.',
     shareDomainReadOnlyHint: 'Managed by the administrator.',
     language: 'Language',
+    theme: 'Theme',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
     defaultQuotaGb: 'Default storage quota (GB)',
     defaultQuotaGbHint:
       '0 = unlimited. Applies to every user without an individual quota (see User management). Admins are always unlimited.',

@@ -13,14 +13,24 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Default: follow the system preference. An explicit data-theme attribute
+   (set by the in-app theme switcher) overrides this in either direction. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #16171b;
     --surface: #1e2027;
     --border: #2c2f38;
     --text: #e6e7eb;
     --text-muted: #9199a8;
   }
+}
+
+:root[data-theme='dark'] {
+  --bg: #16171b;
+  --surface: #1e2027;
+  --border: #2c2f38;
+  --text: #e6e7eb;
+  --text-muted: #9199a8;
 }
 
 * {

@@ -25,7 +25,9 @@ router.put('/profile/password', requireAuth, (req, res) => {
     return res.status(401).json({ error: 'INVALID_CURRENT_PASSWORD' });
   }
 
-  updatePassword(user.id, newPassword);
+  // Every other session of this account is ended by the change - this one,
+  // which just proved the current password, stays signed in.
+  req.session.passwordChangedAt = updatePassword(user.id, newPassword);
   res.json({ ok: true });
 });
 

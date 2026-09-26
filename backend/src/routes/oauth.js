@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as client from 'openid-client';
 import { getOidcConfig, oauthSubjectFor } from '../oauth.js';
+import { establishSession } from '../auth.js';
 import { getSettings } from '../settings.js';
 import { getMinioClient } from '../minioClient.js';
 import { homePrefix } from '../permissions.js';
@@ -149,11 +150,12 @@ router.get('/oauth/callback', async (req, res) => {
     });
   }
 
-  req.session.authenticated = true;
-  req.session.userId = user.id;
-  req.session.username = user.username;
-  req.session.isAdmin = Boolean(user.isAdmin ?? user.is_admin);
-  req.session.authMethod = 'oauth';
+  try {
+    await establishSession(req, user.id, 'oauth');
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/?oauthError=OAUTH_LOGIN_FAILED');
+  }
   logActivity({
     userId: user.id,
     username: user.username,

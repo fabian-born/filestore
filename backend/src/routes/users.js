@@ -58,7 +58,8 @@ router.put('/users/:id/password', requireAdmin, (req, res) => {
   const user = findById(Number(req.params.id));
   if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
-  updatePassword(user.id, password);
+  const changedAt = updatePassword(user.id, password);
+  if (user.id === req.session.userId) req.session.passwordChangedAt = changedAt;
   logActivity({
     userId: req.session.userId,
     username: req.session.username,

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { verifyLogin, findById } from '../users.js';
+import { establishSession } from '../auth.js';
 import { logActivity } from '../activity.js';
 
 const router = Router();
@@ -23,7 +24,7 @@ const loginLimiter = rateLimit({
   },
 });
 
-router.post('/login', loginLimiter, (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body || {};
   const user = verifyLogin(username, password);
 
@@ -31,11 +32,12 @@ router.post('/login', loginLimiter, (req, res) => {
     return res.status(401).json({ error: 'INVALID_CREDENTIALS' });
   }
 
-  req.session.authenticated = true;
-  req.session.userId = user.id;
-  req.session.username = user.username;
-  req.session.isAdmin = Boolean(user.is_admin);
-  req.session.authMethod = 'local';
+  try {
+    await establishSession(req, user.id, 'local');
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'LOGIN_FAILED' });
+  }
   logActivity({
     userId: user.id,
     username: user.username,

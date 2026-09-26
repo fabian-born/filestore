@@ -12,10 +12,22 @@ import usersRouter from './routes/users.js';
 import adminRouter from './routes/admin.js';
 import activityRouter from './routes/activity.js';
 import versionRouter from './routes/version.js';
-import { requireAuth } from './auth.js';
+import { requireAuth, syncSessionUser } from './auth.js';
 import { getSettings } from './settings.js';
 import { bootstrapAdmin, listUsers } from './users.js';
 import { homePrefix, SHARED_PREFIX } from './permissions.js';
+
+// Anyone who knows the signing secret can forge a session cookie for any
+// user, so a missing one is fatal rather than silently falling back to a
+// well-known default.
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) {
+  console.error('SESSION_SECRET is not set - refusing to start. Generate one with `openssl rand -hex 32`.');
+  process.exit(1);
+}
+if (SESSION_SECRET === 'changeme') {
+  console.warn('SESSION_SECRET is still the example value "changeme" - replace it with a random string.');
+}
 
 bootstrapAdmin();
 
@@ -35,12 +47,19 @@ async function ensureStructureFolders() {
   }
 }
 
+// How many reverse proxies sit in front of the backend - req.ip (and so the
+// per-IP login rate limit) is read from X-Forwarded-For that many hops back.
+// The default 1 is the bundled nginx; add one for every proxy in front of it
+// (e.g. TRUST_PROXY=2 behind Traefik/Caddy), otherwise every client shares
+// that outer proxy's IP. Non-numeric values go to Express as-is.
+const trustProxy = process.env.TRUST_PROXY ?? '1';
+
 const app = express();
-app.set('trust proxy', 1);
+app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy);
 app.use(express.json());
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'dev-insecure-secret-change-me',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -51,6 +70,7 @@ app.use(
     },
   })
 );
+app.use(syncSessionUser);
 
 // requireAuth here is a plain middleware, not scoped to filesRouter's own
 // routes - mounted at the bare '/api' prefix it would otherwise 401 every

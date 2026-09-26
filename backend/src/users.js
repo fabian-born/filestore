@@ -125,8 +125,17 @@ export function createUser(username, password, isAdmin) {
   return toDto({ id: info.lastInsertRowid, username, is_admin: isAdmin ? 1 : 0, created_at: now });
 }
 
+// Also bumps password_changed_at, which ends every session established
+// before the change (see syncSessionUser in auth.js). Returns the new value
+// so the caller can keep its own session alive if it's the one changing it.
 export function updatePassword(id, password) {
-  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), id);
+  const changedAt = new Date().toISOString();
+  db.prepare('UPDATE users SET password_hash = ?, password_changed_at = ? WHERE id = ?').run(
+    hashPassword(password),
+    changedAt,
+    id
+  );
+  return changedAt;
 }
 
 // null clears the override (falls back to the global default). 0 is a

@@ -62,6 +62,17 @@ function parseRange(rangeHeader, size) {
   return { type: 'range', start, end };
 }
 
+// The only types ever served inline: ones a browser renders as passive
+// media. The content-type comes from whoever uploaded the file, and these
+// bytes are served from the app's own origin - an inline text/html or
+// image/svg+xml would run the uploader's script with the viewer's session.
+// Everything else is always a download.
+const INLINE_SAFE_TYPE = /^(image\/(png|jpeg|gif|webp|avif|bmp)|video\/[\w.+-]+|audio\/[\w.+-]+)$/;
+
+function isInlineSafe(contentType) {
+  return INLINE_SAFE_TYPE.test(contentType.split(';')[0].trim().toLowerCase());
+}
+
 function findActiveShare(key) {
   const now = new Date().toISOString();
   return db
@@ -341,8 +352,16 @@ router.get('/share/:token/download', async (req, res) => {
       return res.status(416).end();
     }
 
-    const disposition = req.query.download ? 'attachment' : 'inline';
+    const disposition = !req.query.download && isInlineSafe(contentType) ? 'inline' : 'attachment';
     res.setHeader('Accept-Ranges', 'bytes');
+    // Defence in depth for the same reason: no sniffing an allowed type into
+    // something executable, and a sandboxed, script-less document if it's
+    // ever rendered anyway.
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox"
+    );
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `${disposition}; filename="${encodeURIComponent(row.file_name)}"`);
 

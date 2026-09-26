@@ -98,6 +98,11 @@ const COLUMN_MIGRATIONS = [
   },
   { table: 'activity', column: 'user_agent', ddl: 'ALTER TABLE activity ADD COLUMN user_agent TEXT' },
   { table: 'activity', column: 'bytes', ddl: 'ALTER TABLE activity ADD COLUMN bytes INTEGER' },
+  {
+    table: 'users',
+    column: 'password_changed_at',
+    ddl: 'ALTER TABLE users ADD COLUMN password_changed_at TEXT',
+  },
 ];
 
 const INDEXES = [

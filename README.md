@@ -65,8 +65,9 @@ SMTP and activity auditing.
    | `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` | Credentials for that server |
    | `MINIO_BUCKET` | Bucket name, only used to seed the in-app setting on first startup |
    | `AUTH_USERNAME` / `AUTH_PASSWORD` | Bootstrap credentials for the first local admin account |
-   | `SESSION_SECRET` | Random string used to sign session cookies, e.g. `openssl rand -hex 32` |
+   | `SESSION_SECRET` | Random string used to sign session cookies, e.g. `openssl rand -hex 32` (required - the backend refuses to start without it) |
    | `COOKIE_SECURE` | Set to `true` once served over HTTPS |
+   | `TRUST_PROXY` | Number of reverse proxies in front of the backend (default `1`, the bundled nginx); set to `2` behind another proxy so login rate limiting sees real client IPs |
 
 2. Start it:
 

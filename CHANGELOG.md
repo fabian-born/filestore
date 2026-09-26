@@ -54,6 +54,25 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   container healthchecks (catching a `localhost` vs `127.0.0.1` resolution
   bug along the way), and moved stray local DB backups into `backups/`.
 
+### Security
+- Share-link downloads are only served inline for passive media types
+  (common images, video, audio). Anything else, notably HTML and SVG, is
+  always sent as a download, together with `X-Content-Type-Options: nosniff`
+  and a sandboxing CSP. Previously an uploaded HTML/SVG file opened through
+  its share link ran with the viewer's session.
+- Login rate limiting now sees the real client IP: nginx appends to
+  `X-Forwarded-For` instead of passing through the client's own header, so a
+  forged header can no longer bypass the limit. With no outer proxy, one bad
+  actor can no longer lock everyone out either. New `TRUST_PROXY` env var
+  for deployments behind an additional reverse proxy.
+- A new session ID is issued at login (local and OAuth), which prevents
+  session fixation.
+- Sessions are re-checked against the database on every request: deleting a
+  user or changing/resetting their password ends their other sessions
+  immediately, and admin-flag changes apply on the next request.
+- The backend refuses to start without `SESSION_SECRET` instead of falling
+  back to a built-in default.
+
 ## [2026.08.27] — First public release
 
 ### Added

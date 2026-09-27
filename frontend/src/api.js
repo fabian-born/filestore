@@ -173,12 +173,25 @@ export function getShare(key) {
   return request(`/share?key=${encodeURIComponent(key)}`);
 }
 
-export function createShare(key, expiresAt, previewEnabled) {
+// password: only sent when set/changed (blank keeps the current one);
+// removePassword drops it. maxDownloads: null = unlimited.
+export function createShare(key, { expiresAt, previewEnabled, password, removePassword, maxDownloads }) {
   return request('/share', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key, expiresAt: expiresAt || null, previewEnabled: Boolean(previewEnabled) }),
+    body: JSON.stringify({
+      key,
+      expiresAt: expiresAt || null,
+      previewEnabled: Boolean(previewEnabled),
+      password: password || undefined,
+      removePassword: Boolean(removePassword),
+      maxDownloads: maxDownloads ?? null,
+    }),
   });
+}
+
+export function getMyShares() {
+  return request('/my-shares');
 }
 
 export function revokeShare(token) {

@@ -13,8 +13,26 @@ function formatBytes(bytes) {
 }
 
 const STRINGS = {
-  de: { save: 'Speichern', noPreview: 'Keine Vorschau verfügbar' },
-  en: { save: 'Save', noPreview: 'No preview available' },
+  de: {
+    save: 'Speichern',
+    noPreview: 'Keine Vorschau verfügbar',
+    passwordTitle: 'Passwortgeschützte Freigabe',
+    passwordPrompt: 'Bitte das Passwort eingeben, um die Datei zu öffnen.',
+    passwordLabel: 'Passwort',
+    passwordSubmit: 'Öffnen',
+    passwordWrong: 'Falsches Passwort',
+    passwordTooMany: 'Zu viele Fehlversuche. Bitte später erneut versuchen.',
+  },
+  en: {
+    save: 'Save',
+    noPreview: 'No preview available',
+    passwordTitle: 'Password-protected share',
+    passwordPrompt: 'Enter the password to open this file.',
+    passwordLabel: 'Password',
+    passwordSubmit: 'Open',
+    passwordWrong: 'Wrong password',
+    passwordTooMany: 'Too many failed attempts. Please try again later.',
+  },
 };
 
 function pageShell({ lang, title, bodyHtml }) {
@@ -39,6 +57,11 @@ function pageShell({ lang, title, bodyHtml }) {
   .preview img, .preview video { max-width:100%; max-height:70vh; border-radius:8px; display:block; margin:0 auto; }
   .preview audio { width:100%; }
   .placeholder { padding:3rem 1rem; color:var(--text-muted); border:1px dashed var(--border); border-radius:8px; margin-bottom:1.25rem; }
+  .password-form { display:flex; flex-direction:column; gap:0.75rem; text-align:left; }
+  .password-form label { font-size:0.85rem; color:var(--text-muted); }
+  .password-form input { padding:0.6rem 0.7rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.95rem; }
+  .password-form button { border:none; cursor:pointer; font-family:inherit; }
+  .error { color:#dc2626; font-size:0.85rem; margin:0 0 1rem; }
   .save-btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none; padding:0.65rem 1.4rem; border-radius:6px; font-size:0.95rem; }
   .save-btn:hover { background:var(--accent-hover); }
 </style>
@@ -74,4 +97,23 @@ export function renderSharePage({ lang, fileName, size, category, downloadUrl, s
   `;
 
   return pageShell({ lang, title: fileName, bodyHtml });
+}
+
+// The file name deliberately isn't shown here - which file sits behind the
+// link is part of what the password protects. `error` is 'wrong' or
+// 'tooMany' after a failed attempt.
+export function renderPasswordPage({ lang, actionUrl, error }) {
+  const s = STRINGS[lang] || STRINGS.de;
+  const errorHtml = error === 'wrong' ? s.passwordWrong : error === 'tooMany' ? s.passwordTooMany : null;
+  const bodyHtml = `
+    <h1>${escapeHtml(s.passwordTitle)}</h1>
+    <p class="meta">${escapeHtml(s.passwordPrompt)}</p>
+    ${errorHtml ? `<p class="error">${escapeHtml(errorHtml)}</p>` : ''}
+    <form class="password-form" method="post" action="${escapeHtml(actionUrl)}">
+      <label for="share-password">${escapeHtml(s.passwordLabel)}</label>
+      <input id="share-password" name="password" type="password" autocomplete="current-password" required autofocus>
+      <button type="submit" class="save-btn">${escapeHtml(s.passwordSubmit)}</button>
+    </form>
+  `;
+  return pageShell({ lang, title: s.passwordTitle, bodyHtml });
 }

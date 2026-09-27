@@ -48,6 +48,22 @@ Version numbers follow this project's build tagging scheme (`yyyy.mm.dd-buildid`
   breakdown is now a pie chart, the desktop/mobile split a two-color bar,
   and key numbers (storage total, bandwidth, active sessions, blocked
   logins, expired share access) are colour-coded.
+- **My shares** page (link icon in the header): every active share link
+  you created, with expiry, views, downloads (against the limit, if any)
+  and protection, plus copy and revoke. Admins see all users' links with
+  their creator. Existing links get their creator and download count
+  backfilled from the activity log.
+- Optional **password** for share links. Recipients get a password page
+  first; the file name stays hidden until they unlock it. Unlocking is
+  remembered for 12 hours per link via a signed cookie, and changing or
+  removing the password invalidates it. Failed attempts are rate-limited
+  (10 per 15 minutes per IP) and logged.
+- Optional **download limit** for share links. Once reached, the link stops
+  working until the limit is raised. Only real downloads count: previewing
+  or streaming media on the share page does not, and neither does resuming
+  a download partway through. The count is claimed atomically, so parallel
+  requests can't exceed it. The share page's inline image load no longer
+  counts as a download in the statistics either.
 
 ### Fixed
 - Housekeeping: pinned `node`/`nginx` base images to digests, added

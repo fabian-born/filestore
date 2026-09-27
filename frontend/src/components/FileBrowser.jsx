@@ -12,12 +12,12 @@ import ProfileModal from './ProfileModal.jsx';
 import MoveModal from './MoveModal.jsx';
 import OwnerModal from './OwnerModal.jsx';
 import Pagination from './Pagination.jsx';
-import { SettingsIcon, ProfileIcon, ActivityIcon, StatsIcon } from './icons.jsx';
+import { SettingsIcon, ProfileIcon, ActivityIcon, LinkIcon, StatsIcon } from './icons.jsx';
 import QuotaFooter from './QuotaFooter.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
 import logo from '../assets/filestore_logo.png';
 
-export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, onOpenStats, user }) {
+export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, onOpenStats, onOpenShares, user }) {
   const { t } = useSettings();
   const [prefix, setPrefix] = useState('');
   const [folders, setFolders] = useState([]);
@@ -279,6 +279,14 @@ export default function FileBrowser({ onLogout, onUnauthorized, onOpenActivity, 
             aria-label={t('stats.title')}
           >
             <StatsIcon />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={onOpenShares}
+            title={t('shares.title')}
+            aria-label={t('shares.title')}
+          >
+            <LinkIcon />
           </button>
           <button
             className="icon-btn"

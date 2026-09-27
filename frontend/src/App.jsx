@@ -6,6 +6,7 @@ import SetupWizard from './components/SetupWizard.jsx';
 import SetupPending from './components/SetupPending.jsx';
 import ActivityPage from './components/ActivityPage.jsx';
 import StatsPage from './components/StatsPage.jsx';
+import SharesPage from './components/SharesPage.jsx';
 import { useSettings } from './context/SettingsContext.jsx';
 
 const SESSION_CHECK_INTERVAL_MS = 5 * 60 * 1000;
@@ -13,11 +14,12 @@ const SESSION_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 // No router in this app - the file browser itself doesn't reflect its
 // folder in the URL either. These are the pages worth a real, bookmarkable
 // path, so they get a minimal manual sync with the History API instead of
-// pulling in a routing library for two routes.
+// pulling in a routing library for a handful of routes.
 function viewFromPath() {
   const path = window.location.pathname;
   if (path === '/activity') return 'activity';
   if (path === '/stats') return 'stats';
+  if (path === '/shares') return 'shares';
   return 'browser';
 }
 
@@ -112,12 +114,17 @@ export default function App() {
     return <StatsPage user={user} onBack={() => navigate('/')} onLogout={handleLogout} />;
   }
 
+  if (view === 'shares') {
+    return <SharesPage user={user} onBack={() => navigate('/')} onLogout={handleLogout} />;
+  }
+
   return (
     <FileBrowser
       onLogout={handleLogout}
       onUnauthorized={() => setAuthenticated(false)}
       onOpenActivity={() => navigate('/activity')}
       onOpenStats={() => navigate('/stats')}
+      onOpenShares={() => navigate('/shares')}
       user={user}
     />
   );

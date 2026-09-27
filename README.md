@@ -15,9 +15,11 @@ SMTP and activity auditing.
 - **File browsing & management** — folders, upload (drag & drop), rename,
   move, delete, with per-file **owner tracking** that survives rename/move.
 - **Sharing** — generate a share link with optional expiry, optional inline
-  preview (skips straight to download when disabled), a QR code, and the
-  ability to email the link to multiple recipients (each gets their own
-  email, sent from your configured SMTP account).
+  preview (skips straight to download when disabled), optional password
+  protection, an optional download limit, a QR code, and the ability to
+  email the link to multiple recipients (each gets their own email, sent
+  from your configured SMTP account). A **My shares** page lists every
+  active link with its usage, to copy or revoke it (admins see everyone's).
 - **Admin tools** — user management, SMTP settings with test-email, bucket
   configuration, and a paginated, filterable **activity log**.
 - **Per-user storage quotas** — a global default (admin-configurable, in GB,

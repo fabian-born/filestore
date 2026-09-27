@@ -4,6 +4,7 @@ import * as api from '../api.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 
 const LOCALES = { de: 'de-DE', en: 'en-US' };
+const MIN_PASSWORD_LENGTH = 4;
 
 // <input type="datetime-local"> needs "YYYY-MM-DDTHH:mm" in local time, not
 // the UTC ISO string the backend stores.
@@ -20,6 +21,11 @@ export default function ShareModal({ fileKey, onClose }) {
   const [loading, setLoading] = useState(true);
   const [expiresAt, setExpiresAt] = useState('');
   const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [hasPassword, setHasPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [removePassword, setRemovePassword] = useState(false);
+  const [maxDownloads, setMaxDownloads] = useState('');
+  const [downloadCount, setDownloadCount] = useState(0);
   const [token, setToken] = useState(null);
   const [url, setUrl] = useState(null);
   const [qrDataUrl, setQrDataUrl] = useState(null);
@@ -49,6 +55,9 @@ export default function ShareModal({ fileKey, onClose }) {
           setUrl(shareData.share.url);
           setExpiresAt(toLocalInputValue(shareData.share.expiresAt));
           setPreviewEnabled(shareData.share.previewEnabled);
+          setHasPassword(shareData.share.hasPassword);
+          setMaxDownloads(shareData.share.maxDownloads ?? '');
+          setDownloadCount(shareData.share.downloadCount);
         }
         if (statsData) setStats(statsData);
         setInvites(invitesData.invites || []);
@@ -78,16 +87,31 @@ export default function ShareModal({ fileKey, onClose }) {
   }, [url]);
 
   const save = async () => {
+    const limit = String(maxDownloads).trim() === '' ? null : Number(maxDownloads);
+    if (limit !== null && (!Number.isInteger(limit) || limit < 1)) {
+      setError(t('errors.INVALID_MAX_DOWNLOADS'));
+      return;
+    }
+    if (password && password.length < MIN_PASSWORD_LENGTH) {
+      setError(t('errors.INVALID_SHARE_PASSWORD'));
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
-      const data = await api.createShare(
-        fileKey,
-        expiresAt ? new Date(expiresAt).toISOString() : null,
-        previewEnabled
-      );
+      const data = await api.createShare(fileKey, {
+        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+        previewEnabled,
+        password,
+        removePassword,
+        maxDownloads: limit,
+      });
       setToken(data.token);
       setUrl(data.url);
+      setHasPassword(data.hasPassword);
+      setDownloadCount(data.downloadCount);
+      setPassword('');
+      setRemovePassword(false);
     } catch (err) {
       setError(t(`errors.${err.code}`));
     } finally {
@@ -169,9 +193,53 @@ export default function ShareModal({ fileKey, onClose }) {
             </label>
             <p className="hint">{t('share.enablePreviewHint')}</p>
 
+            <label className="field-label" htmlFor="share-password">
+              {t('share.password')}
+            </label>
+            <input
+              id="share-password"
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              disabled={removePassword}
+              placeholder={hasPassword ? t('share.passwordKeep') : t('share.passwordNone')}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {hasPassword && (
+              <label className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={removePassword}
+                  onChange={(e) => {
+                    setRemovePassword(e.target.checked);
+                    setPassword('');
+                  }}
+                />
+                {t('share.removePassword')}
+              </label>
+            )}
+            <p className="hint">{t('share.passwordHint')}</p>
+
+            <label className="field-label" htmlFor="share-max-downloads">
+              {t('share.maxDownloads')}
+            </label>
+            <input
+              id="share-max-downloads"
+              type="number"
+              min="1"
+              step="1"
+              placeholder={t('share.unlimited')}
+              value={maxDownloads}
+              onChange={(e) => setMaxDownloads(e.target.value)}
+            />
+            <p className="hint">
+              {token && `${t('share.downloadCount', { count: downloadCount })} `}
+              {t('share.maxDownloadsHint')}
+            </p>
+
             {url && (
               <>
-                <p className="hint">{t('share.hint')}</p>
+                <p className="hint">{t(hasPassword ? 'share.hintPassword' : 'share.hint')}</p>
                 <div className="share-link-row">
                   <input readOnly value={url} onFocus={(e) => e.target.select()} />
                   <button type="button" onClick={copy}>

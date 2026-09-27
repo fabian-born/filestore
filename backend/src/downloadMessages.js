@@ -3,11 +3,13 @@ const MESSAGES = {
     linkNotFound: 'Link nicht gefunden oder widerrufen',
     linkExpired: 'Link ist abgelaufen',
     fileNotFound: 'Datei nicht gefunden',
+    linkExhausted: 'Download-Limit dieses Links ist erreicht',
   },
   en: {
     linkNotFound: 'Link not found or revoked',
     linkExpired: 'Link has expired',
     fileNotFound: 'File not found',
+    linkExhausted: 'This link has reached its download limit',
   },
 };
 

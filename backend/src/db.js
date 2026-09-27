@@ -103,10 +103,32 @@ const COLUMN_MIGRATIONS = [
     column: 'password_changed_at',
     ddl: 'ALTER TABLE users ADD COLUMN password_changed_at TEXT',
   },
+  {
+    table: 'shares',
+    column: 'created_by',
+    ddl: 'ALTER TABLE shares ADD COLUMN created_by INTEGER',
+    // Shares created before this column existed: the creator is whoever
+    // logged the first 'share' activity for that token.
+    backfill: `UPDATE shares SET created_by = (
+      SELECT user_id FROM activity WHERE action = 'share' AND detail = shares.token ORDER BY id ASC LIMIT 1
+    )`,
+  },
+  { table: 'shares', column: 'password_hash', ddl: 'ALTER TABLE shares ADD COLUMN password_hash TEXT' },
+  { table: 'shares', column: 'max_downloads', ddl: 'ALTER TABLE shares ADD COLUMN max_downloads INTEGER' },
+  {
+    table: 'shares',
+    column: 'download_count',
+    ddl: 'ALTER TABLE shares ADD COLUMN download_count INTEGER NOT NULL DEFAULT 0',
+    // Seeds the counter from the download history the activity log already has.
+    backfill: `UPDATE shares SET download_count = (
+      SELECT COUNT(*) FROM activity WHERE action = 'download' AND detail = shares.token
+    )`,
+  },
 ];
 
 const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_shares_object_key ON shares(object_key)',
+  'CREATE INDEX IF NOT EXISTS idx_shares_created_by ON shares(created_by)',
   'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth_subject ON users(oauth_subject) WHERE oauth_subject IS NOT NULL',
   'CREATE INDEX IF NOT EXISTS idx_activity_user_id ON activity(user_id)',
   'CREATE INDEX IF NOT EXISTS idx_activity_object_key ON activity(object_key)',
@@ -138,9 +160,10 @@ export function verifyAndMigrate() {
     if (!existed) changes.push(`Tabelle "${table}" angelegt`);
   }
 
-  for (const { table, column, ddl } of COLUMN_MIGRATIONS) {
+  for (const { table, column, ddl, backfill } of COLUMN_MIGRATIONS) {
     if (!hasColumn(table, column)) {
       db.exec(ddl);
+      if (backfill) db.exec(backfill);
       changes.push(`Spalte "${column}" zu Tabelle "${table}" hinzugefügt`);
     }
   }
